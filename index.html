@@ -709,6 +709,10 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 :root[data-tema="escuro"] .historico li { border-top-color: #3a3842; }
 
 .opcoes-layout button.ativo small { color: #5b5a57 !important; }
+.lista-condicoes { list-style: none; padding: 0; margin: 0 0 6px; }
+.lista-condicoes li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 2px dashed var(--neutro-claro); font-size: 14px; }
+.tenho.rapido { background: var(--amarelo); color: var(--tinta-fixa); border: 2px solid var(--tinta-fixa); font-weight: 800; padding: 3px 12px; white-space: nowrap; }
+.tenho.rapido:disabled { background: var(--ok-fundo); color: var(--ok); border-color: var(--ok); }
 
 /* Botão de tema (lua/sol) */
 .tema-btn {
@@ -972,7 +976,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
     </section>
   </main>
 
-  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0304</span></footer>
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0314</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -1039,6 +1043,13 @@ ANÁLISE: em "analise", liste quais requisitos da vaga o candidato atende (com a
 do original), quais não atende, uma nota de compatibilidade de 0 a 100 e dicas honestas (por
 exemplo, cursos que valeria fazer ou o que mencionar na entrevista). Dicas nunca devem sugerir mentir.
 
+CONDIÇÕES x REQUISITOS: separe as CONDIÇÕES da vaga, que são só "sim ou não" e não competências: disponibilidade
+de horário/turno/escala/fins de semana, trabalho presencial, viagens, CNH ou veículo próprio, morar na região,
+início imediato, tipo de contrato. Elas NÃO entram em "requisitos_nao_atendidos": vão em "analise.condicoes",
+cada uma como frase curta (ex.: "Disponibilidade para viagens", "Trabalho presencial em Sobral", "CNH categoria B"),
+e só as que o currículo ainda não confirma. "requisitos_nao_atendidos" fica só para conhecimentos, ferramentas,
+experiências e formações.
+
 ===== CURRÍCULO ORIGINAL =====
 ${curriculo}
 ===== FIM DO CURRÍCULO =====
@@ -1102,6 +1113,7 @@ const ESQUEMA = {
           items: { type: 'OBJECT', properties: { requisito: S, evidencia: S }, required: ['requisito', 'evidencia'] },
         },
         requisitos_nao_atendidos: LISTA,
+        condicoes: LISTA,
         dicas: LISTA,
       },
       required: ['compatibilidade', 'requisitos_atendidos', 'requisitos_nao_atendidos', 'dicas'],
@@ -2206,7 +2218,12 @@ function desenharAnalise(reg) {
   const k = reg.compatibilidade;
   const nota = Math.max(0, Math.min(100, a.compatibilidade || 0));
   const lista = (itens, f) => itens?.length ? `<ul>${itens.map(f).join('')}</ul>` : '<p class="vazio">—</p>';
-  const botaoTenho = texto => `<button class="tenho" data-req="${esc(texto)}">Eu tenho isso</button>`;
+  // Condição (presencial, viagens, horário, CNH...) é só "sim": um toque basta. Competência abre a caixinha.
+  const botaoTenho = texto => ehCondicao(texto)
+    ? `<button class="tenho rapido" data-req="${esc(texto)}" data-rapido="1">Posso ✓</button>`
+    : `<button class="tenho" data-req="${esc(texto)}">Eu tenho isso</button>`;
+  const naoAtendidos = (a.requisitos_nao_atendidos || []).filter(x => !ehCondicao(x));
+  const condicoes = [...new Set([...(a.condicoes || []), ...(a.requisitos_nao_atendidos || []).filter(ehCondicao)])];
 
   const blocoChaves = k ? `
     <div class="placar">
@@ -2226,13 +2243,17 @@ function desenharAnalise(reg) {
     <div class="medidor"><span>Aderência real (avaliação da IA)</span><div class="trilho"><div class="barra-nota" style="width:${nota}%"></div></div><b>${nota}%</b></div>
     <h3>✔ Requisitos que você atende</h3>
     ${lista(a.requisitos_atendidos, x => `<li>${esc(x.requisito)}<br><span class="evid">no seu currículo: “${esc(x.evidencia)}”</span></li>`)}
+    ${condicoes.length ? `
+      <h3>A vaga também pede: é só confirmar</h3>
+      <p class="ajuda">Toque em “Posso ✓” no que for verdade pra você. Não precisa explicar nada.</p>
+      <ul class="lista-condicoes">${condicoes.map(x => `<li><span>${esc(x)}</span> ${botaoTenho(x)}</li>`).join('')}</ul>` : ''}
     <h3>✘ Requisitos que não estão no seu currículo</h3>
-    <p class="ajuda">Se você tem algum deles e só não tinha colocado no currículo, clique em “Eu tenho isso”: a informação entra no seu currículo base e a compatibilidade sobe na próxima adaptação.</p>
-    ${lista(a.requisitos_nao_atendidos, x => `<li>${esc(x)} ${botaoTenho(x)}</li>`)}
+    <p class="ajuda">Se você tem algum deles e só não tinha colocado no currículo, toque em “Eu tenho isso”: a informação entra no seu currículo base e a compatibilidade sobe na próxima adaptação.</p>
+    ${lista(naoAtendidos, x => `<li>${esc(x)} ${botaoTenho(x)}</li>`)}
     <div id="confirmacao" class="confirmacao" hidden>
       <b id="confReq"></b>
-      <p class="ajuda">Conte com suas palavras onde e como você tem isso (ex.: “no estágio da UNINTA eu criava usuários no Active Directory”). Só coloque o que for verdade — isso vai para o currículo.</p>
-      <textarea id="confTexto" rows="3"></textarea>
+      <p class="ajuda"><b>Opcional:</b> conte em poucas palavras onde ou como você tem isso (ex.: “usava no estágio para fazer planilhas de estoque”). Com detalhe o currículo fica mais forte, mas pode deixar em branco. Só confirme o que for verdade.</p>
+      <textarea id="confTexto" rows="2" placeholder="(opcional)"></textarea>
       <button id="confSalvar" class="btn">Adicionar ao meu currículo</button>
       <button id="confCancelar" class="link">cancelar</button>
     </div>
@@ -2243,9 +2264,10 @@ function desenharAnalise(reg) {
     <h3>Dicas</h3>
     ${lista(a.dicas, x => `<li>${esc(x)}</li>`)}`;
 
-  $('analise').querySelectorAll('.tenho').forEach(b => b.onclick = () => abrirConfirmacao(b.dataset.req));
+  $('analise').querySelectorAll('.tenho').forEach(b => b.onclick = () =>
+    b.dataset.rapido ? adicionarAoCurriculo(b.dataset.req, '') : abrirConfirmacao(b.dataset.req));
   $('confCancelar').onclick = () => { $('confirmacao').hidden = true; };
-  $('confSalvar').onclick = salvarConfirmacao;
+  $('confSalvar').onclick = () => adicionarAoCurriculo(reqAtual, $('confTexto').value.trim());
   $('readaptar').onclick = () => adaptarVagas([{
     cargo: atual.resultado.vaga?.cargo || '',
     texto_completo: atual.resultado.vaga?.texto_transcrito || '',
@@ -2266,17 +2288,19 @@ function abrirConfirmacao(req) {
   $('confTexto').focus();
 }
 
-async function salvarConfirmacao() {
-  const desc = $('confTexto').value.trim();
-  if (!desc) return alert('Descreva onde/como você tem isso.');
+// Condições da vaga que são só "sim ou não": não precisam de explicação.
+const CONDICAO = /presencial|viage|viaj|hor[aá]rio|turno|escala|noturn|fins? de semana|feriado|plant[aã]o|disponibilidade|dispon[ií]vel|cnh|habilita[cç][aã]o|carteira de motorista|ve[ií]culo|moto pr[oó]pria|carro pr[oó]prio|residir|morar|resid[eê]ncia|regi[aã]o|proximidade|in[ií]cio imediato|mudan[cç]a de cidade|home office|h[ií]brido|remoto|maior de 18|clt|\bpj\b|tempo integral|meio per[ií]odo/i;
+const ehCondicao = texto => CONDICAO.test(String(texto || ''));
+
+async function adicionarAoCurriculo(req, desc) {
   let cv = $('textoCv').value.trimEnd();
   if (!cv.includes(TITULO_CONFIRMADAS)) cv += `\n\n${TITULO_CONFIRMADAS}`;
-  cv += `\n- ${reqAtual}: ${desc}`;
+  cv += `\n- ${req}: ${desc || 'sim'}`;
   $('textoCv').value = cv;
   await api('/api/curriculo', { method: 'POST', body: { texto: cv } });
   $('confirmacao').hidden = true;
   $('analise').querySelectorAll('.tenho').forEach(b => {
-    if (b.dataset.req === reqAtual) { b.disabled = true; b.textContent = '✔ adicionado'; }
+    if (b.dataset.req === req) { b.disabled = true; b.textContent = '✔ adicionado'; }
   });
   adicionadas++;
   $('readaptarInfo').textContent = `${adicionadas} informação(ões) adicionada(s) ao seu currículo base.`;
