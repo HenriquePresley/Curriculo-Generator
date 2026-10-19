@@ -4,7 +4,414 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Adaptador de Currículo</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  --fundo: #f3f4f7;
+  --cartao: #ffffff;
+  --texto: #1d2230;
+  --suave: #5f6677;
+  --borda: #dfe2ea;
+  --destaque: #2457d6;
+  --destaque-escuro: #1a43a8;
+  --ok: #1d7a46;
+  --ok-fundo: #e7f6ee;
+  --alerta: #a35a00;
+  --alerta-fundo: #fff4e0;
+  --erro: #b42318;
+  --erro-fundo: #fdecea;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.o-que-e { margin: 0 0 10px; font-size: 13.5px; }
+.o-que-e summary { cursor: pointer; color: var(--destaque); }
+.o-que-e p { color: var(--suave); line-height: 1.5; margin: 6px 0 0; }
+.passos-chave { margin: 0 0 8px; padding-left: 20px; font-size: 14px; line-height: 1.45; }
+.passos-chave li { margin-bottom: 12px; }
+.passos-chave small { display: block; color: var(--suave); margin-top: 4px; }
+.passos-chave input { margin: 6px 0 0; }
+.passos-chave .btn.grande { margin-top: 0; }
+.btn-google { display: inline-block; text-decoration: none; }
+.chave-status { font-size: 14px; font-weight: 600; min-height: 1em; margin: 0 0 8px; }
+.chave-status.erro { color: var(--erro); }
+.so-online { display: none; }
+body.modo-online .so-online { display: block; }
+.dica-pdf { background: #f2f5ff; border-radius: 10px; padding: 10px 14px; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  font-size: 15px;
+}
+.topo { padding: 20px 28px 8px; }
+.topo h1 { margin: 0; font-size: 24px; }
+.topo p { margin: 4px 0 0; color: var(--suave); }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: 20px;
+  padding: 16px 28px 40px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; padding: 12px 16px 32px; }
+  .topo { padding: 16px 16px 4px; }
+}
+
+.cartao {
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.cartao h2 { font-size: 16px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.num {
+  display: inline-grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--destaque); color: #fff; font-size: 13px;
+}
+.ajuda { color: var(--suave); font-size: 13.5px; margin: 0 0 10px; line-height: 1.45; }
+.ok { color: var(--ok); }
+
+input[type=password], input[type=text], textarea {
+  width: 100%;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 14px;
+  margin-bottom: 10px;
+  background: #fff;
+  color: var(--texto);
+}
+textarea { resize: vertical; }
+
+.btn {
+  background: var(--destaque);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { background: var(--destaque-escuro); }
+.btn:disabled { opacity: .6; cursor: wait; }
+.btn.secundario { background: #e8edfb; color: var(--destaque); }
+.btn.secundario:hover { background: #d9e2fa; }
+.btn.grande { width: 100%; padding: 13px; font-size: 16px; margin-top: 10px; }
+.arquivo { display: inline-block; margin-bottom: 10px; }
+.link { background: none; border: 0; color: var(--destaque); cursor: pointer; text-decoration: underline; font: inherit; }
+.status { margin-left: 10px; font-size: 13px; color: var(--ok); }
+
+.zona {
+  border: 2px dashed #b8c3e0;
+  border-radius: 10px;
+  padding: 22px 12px;
+  text-align: center;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px;
+  color: var(--suave);
+  outline: none;
+}
+.zona strong { color: var(--texto); }
+.zona.arrastando, .zona:focus { border-color: var(--destaque); background: #f2f5ff; }
+.miniaturas { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.miniaturas div { position: relative; }
+.miniaturas img { width: 74px; height: 74px; object-fit: cover; border-radius: 6px; border: 1px solid var(--borda); }
+.miniaturas button {
+  position: absolute; top: -6px; right: -6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 0; background: var(--erro); color: #fff; cursor: pointer; font-size: 12px; line-height: 1;
+}
+details summary { cursor: pointer; color: var(--destaque); font-size: 14px; margin: 6px 0; }
+
+.historico { list-style: none; margin: 0; padding: 0; }
+.historico li { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--borda); }
+.historico li:first-child { border-top: 0; }
+.historico li button.abrir {
+  flex: 1; text-align: left; background: none; border: 0; padding: 8px 2px; cursor: pointer; font: inherit; color: var(--texto);
+}
+.historico li button.abrir:hover { color: var(--destaque); }
+.historico small { display: block; color: var(--suave); font-size: 12px; }
+.historico .apagar { background: none; border: 0; color: var(--suave); cursor: pointer; font-size: 16px; }
+.vazio { color: var(--suave); font-size: 14px; }
+
+.resultado { min-width: 0; }
+.vazio-grande {
+  border: 2px dashed var(--borda); border-radius: 12px;
+  min-height: 300px; display: grid; place-items: center; color: var(--suave);
+}
+.carregando { text-align: center; padding: 80px 0; color: var(--suave); }
+.giro {
+  width: 42px; height: 42px; margin: 0 auto 14px;
+  border: 4px solid #d7def0; border-top-color: var(--destaque); border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.barra { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.check { font-size: 14px; color: var(--suave); display: flex; gap: 6px; align-items: center; }
+
+.aviso { border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 14px; line-height: 1.45; }
+.aviso.ok { background: var(--ok-fundo); color: var(--ok); }
+.aviso.atencao { background: var(--alerta-fundo); color: #5c3300; }
+.aviso.erro { background: var(--erro-fundo); color: var(--erro); }
+.aviso ul { margin: 8px 0 0; padding-left: 18px; }
+.aviso li { margin-bottom: 6px; }
+.aviso .grav { font-weight: 700; }
+.aviso em { color: #333; }
+
+.analise h3 { font-size: 15px; margin: 14px 0 6px; }
+.analise h3:first-child { margin-top: 0; }
+.analise ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+.analise .evid { color: var(--suave); font-size: 13px; }
+.medidor { display: flex; align-items: center; gap: 12px; }
+.medidor .trilho { flex: 1; height: 10px; background: #e6e9f0; border-radius: 5px; overflow: hidden; }
+.medidor .barra-nota { height: 100%; background: var(--destaque); border-radius: 5px; }
+.medidor b { font-size: 20px; min-width: 52px; text-align: right; }
+
+.placar { display: flex; align-items: center; gap: 18px; margin: 8px 0 6px; }
+.placar div { display: flex; flex-direction: column; }
+.placar small { color: var(--suave); font-size: 12.5px; }
+.placar b { font-size: 30px; line-height: 1.1; }
+.placar .antes { color: var(--suave); }
+.placar .depois { color: var(--ok); }
+.placar .seta { font-size: 24px; color: var(--suave); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { font-size: 13px; padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
+.chip.sim { background: var(--ok-fundo); color: var(--ok); }
+.chip.nao { background: #eef0f4; color: var(--suave); }
+.tenho {
+  background: #fff; border: 1px solid var(--destaque); color: var(--destaque);
+  border-radius: 999px; font-size: 12px; padding: 1px 8px; cursor: pointer; font-family: inherit;
+}
+.tenho:hover { background: #eef2fd; }
+.tenho:disabled { border-color: var(--ok); color: var(--ok); cursor: default; background: #fff; }
+.analise li .tenho { margin-left: 6px; }
+.confirmacao, .readaptar {
+  margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: #f2f5ff; border: 1px solid #d6dff7;
+}
+.confirmacao .ajuda { margin-top: 4px; }
+.readaptar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--ok-fundo); border-color: #bfe5cf; }
+.dica-edicao { margin-top: 4px; }
+
+/* ===== Abas do app e candidaturas ===== */
+.abas-app { display: flex; gap: 6px; margin-top: 14px; border-bottom: 1px solid var(--borda); }
+.aba-app {
+  background: none; border: 0; border-bottom: 3px solid transparent; padding: 9px 14px;
+  font: inherit; font-weight: 600; color: var(--suave); cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.aba-app.ativa { color: var(--destaque); border-bottom-color: var(--destaque); }
+.badge { background: var(--erro); color: #fff; border-radius: 999px; font-size: 12px; padding: 1px 7px; }
+
+.layout.candidaturas { grid-template-columns: 1fr; max-width: 900px; }
+.cand-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.contadores { display: flex; flex-wrap: wrap; gap: 6px; }
+.contador {
+  border: 1px solid var(--borda); background: var(--cartao); border-radius: 999px; padding: 5px 12px;
+  font: inherit; font-size: 13.5px; cursor: pointer; color: var(--texto);
+}
+.contador b { margin-left: 4px; }
+.contador.ativo { border-color: var(--destaque); background: #eef2fd; color: var(--destaque); }
+
+.form-cand h2 { margin-bottom: 12px; }
+.grade-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0 14px; }
+.form-cand label { display: block; font-size: 13px; color: var(--suave); }
+.form-cand input, .form-cand select, .form-cand textarea, .envio-linha select, .envio-linha input {
+  width: 100%; border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px;
+  font: inherit; font-size: 14px; margin: 3px 0 10px; background: #fff; color: var(--texto);
+}
+
+.lista-cand { display: flex; flex-direction: column; gap: 10px; }
+.cand { margin-bottom: 0; }
+.cand.encerrada { opacity: .72; }
+.cand.cobrar { border-color: #f0c36d; box-shadow: 0 0 0 1px #f0c36d inset; }
+.cand-cabeca { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.cand h3 { margin: 0; font-size: 16px; }
+.cand h3 span { color: var(--suave); font-weight: 500; }
+.cand-meta { margin: 3px 0 0; font-size: 13px; color: var(--suave); }
+.cand-meta a { color: var(--destaque); }
+.sel-status { border: 1px solid var(--borda); border-radius: 999px; padding: 5px 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.sel-status.azul { background: #eef2fd; color: var(--destaque); }
+.sel-status.roxo { background: #f3edfd; color: #6a3fc1; }
+.sel-status.verde { background: var(--ok-fundo); color: var(--ok); }
+.sel-status.cinza { background: #eef0f4; color: var(--suave); }
+.cand-alerta { margin: 8px 0 0; font-size: 13.5px; font-weight: 600; color: var(--alerta); }
+.cand-lembrete { margin: 8px 0 0; font-size: 13px; color: var(--suave); }
+.cand-obs { margin: 8px 0 0; font-size: 13.5px; background: #f6f7fa; border-radius: 8px; padding: 6px 10px; }
+.cand-tempo { margin: 6px 0 0; font-size: 12px; color: var(--suave); }
+.cand-acoes { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 13.5px; }
+.link.perigo { color: var(--erro); }
+.cand-msg textarea { width: 100%; margin-top: 10px; border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 14px; }
+.cand-msg .barra { margin: 6px 0 0; }
+
+.envio-box { background: #f2f5ff; border-color: #d6dff7; }
+.envio-linha { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: flex-start; }
+.envio-linha select { width: auto; flex: 0 0 auto; }
+.envio-linha input { flex: 1 1 200px; width: auto; }
+.envio-linha .btn { margin-top: 3px; }
+
+/* ===== Montar do zero ===== */
+.montar-btn { width: 100%; margin-bottom: 12px; background: linear-gradient(135deg, #2457d6, #5b3fd1); }
+.montador { position: fixed; inset: 0; background: rgba(15, 20, 35, .55); z-index: 50; display: grid; place-items: center; padding: 16px; }
+.montador-caixa {
+  background: var(--cartao); border-radius: 14px; width: min(860px, 100%); height: min(92vh, 900px);
+  display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+.m-topo { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--borda); }
+.m-fechar { background: none; border: 0; font-size: 26px; line-height: 1; cursor: pointer; color: var(--suave); margin-left: 10px; }
+.m-indicador { display: flex; gap: 4px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid var(--borda); }
+.m-ind { background: none; border: 0; font: inherit; font-size: 12.5px; color: var(--suave); display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 8px; white-space: nowrap; cursor: default; }
+.m-ind span { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #e6e9f0; font-size: 11.5px; font-weight: 700; }
+.m-ind.feito { cursor: pointer; } .m-ind.feito span { background: var(--ok); color: #fff; }
+.m-ind.atual { color: var(--texto); font-weight: 600; background: #eef2fd; } .m-ind.atual span { background: var(--destaque); color: #fff; }
+.m-conteudo { flex: 1; overflow-y: auto; padding: 18px 22px; }
+.m-conteudo h2 { margin: 0 0 4px; font-size: 20px; }
+.m-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.m-campo { display: block; font-size: 13.5px; font-weight: 600; color: var(--texto); margin-bottom: 10px; }
+.m-campo.largo, .m-check.largo { grid-column: 1 / -1; }
+.m-campo i { color: var(--erro); font-style: normal; }
+.m-campo input, .m-campo select, .m-campo textarea {
+  display: block; width: 100%; margin-top: 4px; border: 1px solid var(--borda); border-radius: 8px;
+  padding: 9px 10px; font: inherit; font-size: 15px; font-weight: 400; background: #fff; color: var(--texto);
+}
+.m-campo small { display: block; font-weight: 400; color: var(--suave); margin-top: 3px; font-size: 12.5px; }
+.m-check { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 4px 0 12px; cursor: pointer; }
+.m-check input { width: 18px; height: 18px; accent-color: var(--destaque); }
+.m-bloco { border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px 4px; margin-bottom: 12px; background: #fafbfd; }
+.m-bloco-topo { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+.m-sub { font-weight: 700; margin: 16px 0 8px; font-size: 14.5px; }
+.m-linha { display: grid; grid-template-columns: 1fr 160px auto; gap: 10px; align-items: center; }
+.m-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.m-chip { border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; cursor: pointer; user-select: none; background: #fff; }
+.m-chip input { display: none; }
+.m-chip.on { background: #eef2fd; border-color: var(--destaque); color: var(--destaque); font-weight: 600; }
+.m-revisao { white-space: pre-wrap; font-family: inherit; font-size: 13.5px; background: #f6f7fa; border-radius: 10px; padding: 14px; line-height: 1.5; }
+.m-erro { color: var(--erro); font-weight: 600; font-size: 14px; min-height: 1em; }
+.m-rodape { display: flex; justify-content: space-between; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--borda); }
+.m-rodape .btn:only-child, .m-rodape #mVoltar[hidden] + .btn { margin-left: auto; }
+@media (max-width: 640px) {
+  .montador { padding: 0; }
+  .montador-caixa { height: 100%; border-radius: 0; }
+  .m-grade { grid-template-columns: 1fr; }
+  .m-linha { grid-template-columns: 1fr 1fr; }
+  .m-conteudo { padding: 14px 16px; }
+}
+
+.triagem h3 { font-size: 15px; margin: 14px 0 6px; }
+.triagem ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+.triagem > p { font-size: 14px; line-height: 1.5; margin: 8px 0 0; }
+.triagem-topo { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.triagem-topo h3 { margin-top: 0; }
+.decisao { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 10px; }
+.decisao b { font-size: 28px; line-height: 1; }
+.decisao span { font-size: 13.5px; font-weight: 600; }
+.decisao.ok { background: var(--ok-fundo); color: var(--ok); }
+.decisao.atencao { background: var(--alerta-fundo); color: var(--alerta); }
+.decisao.erro { background: var(--erro-fundo); color: var(--erro); }
+.pergunta { border: 1px solid var(--borda); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; }
+.pergunta summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.pergunta p { font-size: 13.5px; color: var(--suave); margin: 6px 0 0; line-height: 1.45; }
+
+.escolha h2 { font-size: 17px; line-height: 1.35; }
+.opcao-vaga {
+  display: flex; gap: 12px; align-items: flex-start;
+  border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+}
+.opcao-vaga:hover { border-color: var(--destaque); }
+.opcao-vaga:has(input:checked) { border-color: var(--destaque); background: #f2f5ff; }
+.opcao-vaga input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--destaque); }
+.opcao-vaga small { color: var(--suave); }
+.escolha .barra { margin: 12px 0 6px; }
+
+.abas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; border-bottom: 1px solid var(--borda); }
+.aba {
+  background: none; border: 0; border-bottom: 3px solid transparent;
+  padding: 8px 12px; font: inherit; font-weight: 600; color: var(--suave); cursor: pointer;
+}
+.aba small { color: var(--ok); margin-left: 4px; }
+.aba.ativa { color: var(--destaque); border-bottom-color: var(--destaque); }
+
+/* ===== Currículo (A4) ===== */
+.cv {
+  background: #fff;
+  color: #1a1a1a;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 18mm 18mm;
+  box-shadow: 0 2px 14px rgba(20, 30, 60, .12);
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  outline: none;
+}
+@media (max-width: 700px) { .cv { padding: 20px 16px; min-height: 0; } }
+/* Estrutura comum aos 3 layouts */
+.cv h1 { margin: 0; }
+.cv p { margin: 0 0 4px; }
+.cv .exp { margin-bottom: 7px; break-inside: avoid; }
+.cv .exp-topo { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cv .periodo { white-space: nowrap; }
+.cv ul { margin: 2px 0 0; padding-left: 18px; }
+.cv li { margin-bottom: 1px; }
+.cv .tags { display: block; }
+
+/* A: Clássico (padrão) — serifa nos títulos, só preto e cinza */
+.cv.layout-a { font-family: Calibri, Carlito, Arial, sans-serif; color: #222; font-size: 10.5pt; }
+.cv.layout-a h1 { font-family: Cambria, Georgia, serif; font-weight: 400; font-size: 23pt; color: #111; }
+.cv.layout-a .objetivo { font-size: 11.5pt; font-style: italic; color: #333; margin: 2px 0 4px; }
+.cv.layout-a .contatos { font-size: 9.5pt; color: #444; padding-bottom: 9px; border-bottom: 1px solid #222; margin-bottom: 4px; }
+.cv.layout-a h2 { font-family: Cambria, Georgia, serif; font-variant: small-caps; font-size: 13.5pt; color: #111; margin: 13px 0 4px; }
+.cv.layout-a .exp-topo strong { font-size: 11pt; }
+.cv.layout-a .periodo { color: #555; font-style: italic; }
+.cv.layout-a .empresa { color: #444; font-size: 10pt; }
+.cv.layout-a ul { list-style: "–  "; padding-left: 16px; }
+
+/* B: Minimalista — títulos na coluna da esquerda, sem cor */
+.cv.layout-b { font-family: "Segoe UI", Arial, sans-serif; color: #1c1c1c; font-size: 10pt;
+  display: grid; grid-template-columns: 30mm 1fr; column-gap: 6mm; align-content: start; }
+.cv.layout-b > * { grid-column: 2; }
+.cv.layout-b > h1, .cv.layout-b > .objetivo, .cv.layout-b > .contatos { grid-column: 1 / -1; }
+.cv.layout-b > h2 { grid-column: 1; font-size: 9.5pt; font-weight: 600; color: #777; margin: 13px 0 0; line-height: 1.35; }
+.cv.layout-b > h2 + * { margin-top: 13px; }
+.cv.layout-b h1 { font-size: 21pt; font-weight: 600; letter-spacing: -.2px; }
+.cv.layout-b .objetivo { font-size: 11pt; color: #555; margin: 1px 0 2px; }
+.cv.layout-b .contatos { font-size: 9pt; color: #555; margin-bottom: 4px; }
+.cv.layout-b .exp-topo strong { font-weight: 600; }
+.cv.layout-b .periodo { color: #777; font-size: 9pt; }
+.cv.layout-b .empresa { color: #666; font-size: 9pt; }
+@media (max-width: 700px) { .cv.layout-b { display: block; } }
+
+/* C: Tradicional — cabeçalho centralizado, faixas cinza nos títulos */
+.cv.layout-c { font-family: Arial, Helvetica, sans-serif; color: #111; font-size: 10pt; }
+.cv.layout-c h1, .cv.layout-c .objetivo, .cv.layout-c .contatos { text-align: center; }
+.cv.layout-c h1 { font-size: 17pt; text-transform: uppercase; letter-spacing: .5px; }
+.cv.layout-c .objetivo { font-size: 10.5pt; margin: 3px 0 2px; }
+.cv.layout-c .contatos { font-size: 9pt; margin-bottom: 6px; }
+.cv.layout-c h2 { font-size: 10.5pt; text-transform: uppercase; background: #ececec; padding: 3px 8px; margin: 12px 0 5px; }
+.cv.layout-c .exp-topo strong { font-size: 10.5pt; }
+.cv.layout-c .empresa { color: #333; font-size: 9.5pt; }
+.cv.com-marcas mark.suspeito { background: #ffe08a; border-bottom: 2px solid #e0a100; color: inherit; padding: 0 1px; }
+.cv:not(.com-marcas) mark.suspeito { background: none; color: inherit; }
+
+@media print {
+  /* Margem na página (e não só no currículo) para a 2ª página também ter respiro em cima e embaixo */
+  @page { size: A4; margin: 12mm 0 14mm; }
+  body { background: #fff; }
+  .topo, .painel, .barra, .abas, #verificacao, #analise, #triagem, #envioBox, .dica-edicao, .dica-pdf { display: none !important; }
+  .layout { display: block; padding: 0; }
+  .cv { box-shadow: none; max-width: none; min-height: 0; margin: 0; padding: 4mm 18mm 0; }
+  .cv h2 { break-after: avoid; }
+  .cv li { break-inside: avoid; }
+  .cv mark.suspeito { background: none !important; border: 0 !important; }
+}
+
+</style>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 </head>
@@ -59,15 +466,32 @@
     <aside class="painel">
 
       <section class="cartao" id="cartaoChave">
-        <h2><span class="num">1</span> Chave da IA gratuita</h2>
-        <div id="chaveOk" class="ok" hidden>✔ Chave configurada. <button class="link" id="trocarChave">trocar</button></div>
+        <h2><span class="num">1</span> Ativar a IA grátis</h2>
+        <div id="chaveOk" class="ok" hidden>✔ IA ativada. <button class="link" id="trocarChave">trocar chave</button></div>
         <div id="chaveForm">
-          <p class="ajuda">Usa o Google Gemini, gratuito. Crie a chave em
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>
-            (login com sua conta Google → “Create API key”) e cole aqui.</p>
+          <p class="ajuda">Leva 1 minuto e é <b>de graça</b>. Você só precisa de uma conta Google (a mesma do Gmail ou do YouTube).</p>
+          <details class="o-que-e">
+            <summary>O que é isso? É seguro?</summary>
+            <p>O app usa a inteligência artificial do Google. Para isso, cada pessoa cria uma <b>chave</b>, que funciona como
+              uma senha de uso só sua. É grátis, não pede cartão de crédito, e a chave fica guardada só no seu aparelho.
+              Se um dia quiser, dá para apagar a chave no site do Google.</p>
+          </details>
+          <ol class="passos-chave">
+            <li>
+              <a class="btn btn-google" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Abrir o site do Google ↗</a>
+              <small>Entre com sua conta Google, se ele pedir.</small>
+            </li>
+            <li>Se aparecer, aceite os termos. Depois toque no botão <b>"Criar chave de API"</b> (ou <i>"Create API key"</i>).</li>
+            <li>Toque em <b>copiar</b> ao lado da chave que aparecer e volte para este app.</li>
+            <li>
+              <button id="colarChave" class="btn grande" type="button">📋 Colar minha chave</button>
+              <small>Ou cole aqui embaixo:</small>
+              <input id="apiKey" type="password" placeholder="Cole a chave aqui" autocomplete="off">
+            </li>
+          </ol>
+          <p id="chaveStatus" class="chave-status"></p>
           <p class="ajuda so-online">🔒 Versão online: sua chave, seu currículo e seu histórico ficam salvos só neste aparelho. Ninguém mais tem acesso.</p>
-          <input id="apiKey" type="password" placeholder="Cole a chave aqui (começa com AIza...)">
-          <button id="salvarChave" class="btn">Salvar chave</button>
+          <button id="salvarChave" class="btn">Ativar</button>
         </div>
       </section>
 
@@ -181,12 +605,1877 @@
     </div>
   </div>
 
-  <script src="compartilhado/prompt.js"></script>
-  <script src="compartilhado/validar.js"></script>
-  <script src="local-api.js"></script>
-  <script src="docx.js"></script>
-  <script src="app.js"></script>
-  <script src="candidaturas.js"></script>
-  <script src="montar.js"></script>
+  <script>/* compartilhado/prompt.js */
+// Instruções e formato de resposta enviados à IA.
+// Usado pelo servidor (Node) e pela versão online (navegador).
+(function (raiz) {
+
+function montarPrompt(curriculo, textoVaga) {
+  return `Você é um especialista em recrutamento que adapta currículos para vagas específicas.
+
+Você vai receber (1) o CURRÍCULO ORIGINAL do candidato e (2) a VAGA, em imagem(ns) e/ou texto.
+Primeiro, leia a vaga com atenção e transcreva o texto dela. Depois, adapte o currículo para essa vaga.
+
+OBJETIVO: deixar o currículo o MAIS COMPATÍVEL POSSÍVEL com a vaga (inclusive com os filtros automáticos
+de palavras-chave dos sistemas de RH), dentro das regras de honestidade abaixo. Para isso:
+- Liste em "vaga.palavras_chave" de 10 a 25 palavras-chave curtas (1 a 3 palavras cada) que um sistema de RH
+  procuraria: cargos, ferramentas, tecnologias, conhecimentos, atividades e competências citadas na vaga.
+- Para cada palavra-chave que o candidato COMPROVADAMENTE tem (mesmo descrita com outras palavras no
+  original), use no currículo o MESMO TERMO EXATO que a vaga usa — no resumo, nas competências e nos itens
+  de experiência. Ex.: original "abertura de chamados" + vaga "service desk / help desk" só se o
+  original deixar claro que é a mesma atividade.
+- Escreva o resumo focado no que a vaga pede, citando os requisitos que o candidato atende.
+- Ordene competências, itens de experiência e cursos do mais relevante para o menos relevante PARA ESTA VAGA.
+- Não deixe de fora nada do original que tenha relação com a vaga.
+
+REGRAS ABSOLUTAS — HONESTIDADE (a mais importante de todas):
+1. Use SOMENTE informações que estão no CURRÍCULO ORIGINAL. É PROIBIDO inventar ou supor
+   experiências, empresas, cargos, datas, períodos, números, porcentagens, métricas, resultados,
+   certificações, cursos, ferramentas, tecnologias, idiomas, níveis de idioma ou competências.
+2. NUNCA copie da vaga uma competência, ferramenta ou requisito que o candidato não tem no original.
+   Esses itens vão APENAS em "analise.requisitos_nao_atendidos".
+3. Você PODE: reordenar seções e itens; escolher os itens mais relevantes para a vaga; reescrever
+   frases com verbos de ação, de forma mais clara e objetiva, SEM mudar o sentido nem exagerar;
+   usar o mesmo termo que a vaga usa SOMENTE quando o currículo descreve claramente a mesma coisa
+   (ex.: original "atendimento ao cliente" e vaga "atendimento ao público").
+4. Cada item de experiência deve ter em "fonte" o trecho do CURRÍCULO ORIGINAL que o comprova,
+   copiado LITERALMENTE (letra por letra). Se não houver trecho que comprove, não crie o item.
+5. "resumo_fontes" deve listar os trechos literais do original usados para escrever o resumo.
+6. Mantenha TODAS as experiências profissionais e formações do original (para não criar lacunas);
+   nas menos relevantes você pode reduzir a quantidade de itens. Nome, contatos, cargos, empresas e
+   períodos devem ser copiados exatamente como no original.
+7. "objetivo" é o único campo em que você pode usar o nome do cargo da vaga.
+8. Se uma seção não existir no original, deixe-a vazia. Nunca preencha com algo genérico.
+9. Escreva em português do Brasil.
+10. Se o original tiver uma seção "INFORMAÇÕES CONFIRMADAS PELO CANDIDATO", trate-a como parte do currículo:
+    encaixe cada informação no lugar certo (experiência, competências, cursos...), com a fonte literal.
+
+ANÁLISE: em "analise", liste quais requisitos da vaga o candidato atende (com a evidência literal
+do original), quais não atende, uma nota de compatibilidade de 0 a 100 e dicas honestas (por
+exemplo, cursos que valeria fazer ou o que mencionar na entrevista). Dicas nunca devem sugerir mentir.
+
+===== CURRÍCULO ORIGINAL =====
+${curriculo}
+===== FIM DO CURRÍCULO =====
+${textoVaga.trim() ? `\n===== TEXTO DA VAGA (fornecido pelo candidato) =====\n${textoVaga}\n===== FIM DA VAGA =====\n` : ''}
+A vaga também pode estar nas imagens anexadas.`;
+}
+
+const S = { type: 'STRING' };
+const LISTA = { type: 'ARRAY', items: S };
+
+const ESQUEMA = {
+  type: 'OBJECT',
+  properties: {
+    vaga: {
+      type: 'OBJECT',
+      properties: { cargo: S, empresa: S, texto_transcrito: S, requisitos: LISTA, palavras_chave: LISTA },
+      required: ['cargo', 'texto_transcrito', 'requisitos', 'palavras_chave'],
+    },
+    curriculo: {
+      type: 'OBJECT',
+      properties: {
+        nome: S,
+        objetivo: S,
+        contatos: LISTA,
+        resumo: S,
+        resumo_fontes: LISTA,
+        competencias: LISTA,
+        experiencias: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              cargo: S, empresa: S, periodo: S, local: S,
+              itens: {
+                type: 'ARRAY',
+                items: { type: 'OBJECT', properties: { texto: S, fonte: S }, required: ['texto', 'fonte'] },
+              },
+            },
+            required: ['cargo', 'empresa', 'itens'],
+          },
+        },
+        formacao: {
+          type: 'ARRAY',
+          items: { type: 'OBJECT', properties: { curso: S, instituicao: S, periodo: S }, required: ['curso'] },
+        },
+        cursos: LISTA,
+        idiomas: LISTA,
+        outros: {
+          type: 'ARRAY',
+          items: { type: 'OBJECT', properties: { titulo: S, itens: LISTA }, required: ['titulo', 'itens'] },
+        },
+      },
+      required: ['nome', 'contatos', 'resumo', 'competencias', 'experiencias', 'formacao'],
+    },
+    analise: {
+      type: 'OBJECT',
+      properties: {
+        compatibilidade: { type: 'INTEGER' },
+        requisitos_atendidos: {
+          type: 'ARRAY',
+          items: { type: 'OBJECT', properties: { requisito: S, evidencia: S }, required: ['requisito', 'evidencia'] },
+        },
+        requisitos_nao_atendidos: LISTA,
+        dicas: LISTA,
+      },
+      required: ['compatibilidade', 'requisitos_atendidos', 'requisitos_nao_atendidos', 'dicas'],
+    },
+  },
+  required: ['vaga', 'curriculo', 'analise'],
+};
+
+const PROMPT_VAGAS = textoVaga => `Leia o(s) anúncio(s) de emprego nas imagens e/ou no texto abaixo.
+Um mesmo anúncio pode oferecer VÁRIAS vagas diferentes (ex.: "Vendedor / Atendente / Supervisor").
+Liste cada vaga separadamente em "vagas". Se houver só uma, retorne uma lista com um item.
+
+Para cada vaga:
+- "cargo": nome do cargo exatamente como no anúncio;
+- "empresa": nome da empresa, se aparecer;
+- "resumo": uma frase curta dizendo o que diferencia essa vaga das outras;
+- "texto_completo": transcrição fiel de tudo do anúncio que vale para essa vaga — a parte específica dela
+  E as informações comuns a todas (empresa, requisitos gerais, benefícios, local, salário, contato).
+  Não resuma nem acrescente nada.
+${textoVaga.trim() ? `\n===== TEXTO DO ANÚNCIO =====\n${textoVaga}\n===== FIM =====` : ''}`;
+
+const ESQUEMA_VAGAS = {
+  type: 'OBJECT',
+  properties: {
+    vagas: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: { cargo: S, empresa: S, resumo: S, texto_completo: S },
+        required: ['cargo', 'texto_completo'],
+      },
+    },
+  },
+  required: ['vagas'],
+};
+
+// Simulador de triagem: a IA faz o papel do filtro automático de uma plataforma de recrutamento.
+const PROMPT_TRIAGEM = (vaga, curriculo) => `Você é o sistema de TRIAGEM AUTOMÁTICA de currículos de uma plataforma de recrutamento
+(como a Gupy). Sua função é decidir quais candidatos avançam para o recrutador humano. Seja rigoroso e realista,
+como um filtro de verdade: não seja bonzinho, mas também não seja injusto.
+
+Avalie o CURRÍCULO em relação à VAGA e responda:
+- "nota": aderência de 0 a 100.
+- "decisao": "avanca" (nota 70 ou mais), "talvez" (50 a 69) ou "reprovado" (abaixo de 50).
+- "resumo": 2 ou 3 frases explicando a decisão, como o sistema explicaria ao recrutador.
+- "pontos_fortes": o que pesa a favor, citando o que está no currículo.
+- "pontos_fracos": o que pesa contra (falta de experiência, termos vagos, informação difícil de achar etc.).
+- "requisitos_nao_comprovados": requisitos da vaga que o currículo não comprova.
+- "palavras_ausentes": palavras-chave importantes da vaga que não aparecem no currículo.
+- "sugestoes": melhorias HONESTAS. Só pode sugerir: reorganizar, deixar mais claro, destacar algo que JÁ está no
+  currículo, ou "se você tiver X, acrescente". Para o que falta, sugira cursos ou experiências para conseguir.
+  NUNCA sugira inventar ou exagerar experiência, cargo, número ou competência.
+- "perguntas": 5 perguntas que o recrutador provavelmente faria na entrevista, cada uma com uma "dica" de como
+  responder usando SOMENTE o que está no currículo (sem inventar nada).
+
+Escreva em português do Brasil.
+
+===== VAGA =====
+${vaga}
+===== FIM DA VAGA =====
+
+===== CURRÍCULO =====
+${curriculo}
+===== FIM DO CURRÍCULO =====`;
+
+const ESQUEMA_TRIAGEM = {
+  type: 'OBJECT',
+  properties: {
+    nota: { type: 'INTEGER' },
+    decisao: { type: 'STRING', enum: ['avanca', 'talvez', 'reprovado'] },
+    resumo: S,
+    pontos_fortes: LISTA,
+    pontos_fracos: LISTA,
+    requisitos_nao_comprovados: LISTA,
+    palavras_ausentes: LISTA,
+    sugestoes: LISTA,
+    perguntas: {
+      type: 'ARRAY',
+      items: { type: 'OBJECT', properties: { pergunta: S, dica: S }, required: ['pergunta', 'dica'] },
+    },
+  },
+  required: ['nota', 'decisao', 'resumo', 'pontos_fortes', 'pontos_fracos', 'sugestoes', 'perguntas'],
+};
+
+// Montar currículo do zero a partir das respostas do passo a passo.
+const PROMPT_MONTAR = respostas => `Você é um especialista em recrutamento no Brasil e escreve currículos excelentes.
+Uma pessoa respondeu um passo a passo com as informações dela, com as próprias palavras (às vezes de forma simples
+ou informal). Transforme as respostas num currículo profissional, de altíssima qualidade.
+
+REGRAS ABSOLUTAS — HONESTIDADE:
+1. Use SOMENTE o que está nas RESPOSTAS. É PROIBIDO inventar ou supor empresas, cargos, datas, números, métricas,
+   resultados, cursos, ferramentas, idiomas, níveis ou competências.
+2. Você PODE e DEVE melhorar a escrita: transformar frases informais em linguagem profissional, clara e objetiva,
+   corrigir português, organizar e ordenar. Ex.: "eu atendia o povo no balcão e mexia no caixa" →
+   "Atendimento ao cliente no balcão" e "Operação de caixa". Sem exagerar o que a pessoa fez.
+3. Cada item de experiência deve ter em "fonte" o trecho das RESPOSTAS que o comprova, copiado LITERALMENTE.
+4. Nome, contatos, empresas, instituições e datas: copie exatamente como nas respostas (pode corrigir só
+   maiúsculas/minúsculas).
+
+COMO FAZER UM CURRÍCULO DE PRIMEIRA:
+- "objetivo": a área ou cargo que a pessoa busca, curto, com iniciais maiúsculas e separado por " | "
+  (ex.: resposta "atendimento ou recepção" → "Atendimento ao Cliente | Recepção").
+- "contatos": cidade/UF, telefone, e-mail e LinkedIn (se houver), cada um como um item.
+- "resumo": 3 a 4 linhas, direto, mostrando quem a pessoa é, a experiência/formação que tem e o que busca.
+  Nada de clichês vazios ("profissional dinâmico e proativo") que não estejam apoiados nas respostas.
+  "resumo_fontes": os trechos literais das respostas usados no resumo.
+- "experiencias": da mais recente para a mais antiga. Cargo, empresa, período no formato "Mês/AAAA – Mês/AAAA"
+  (ou "– atual") e local. De 2 a 5 itens curtos por experiência, cada um começando com substantivo de ação
+  ("Atendimento...", "Controle...", "Organização..."), no mesmo estilo em todo o currículo. Resultados e números
+  informados pela pessoa entram nos itens. Se a pessoa não tem experiência, deixe a lista vazia.
+- "formacao": curso, instituição e período (inclua a situação, ex.: "2024 – 2027 (cursando)").
+- "cursos": "Nome do curso – Instituição, ano (carga horária)" com o que houver.
+- "competencias": itens curtos e específicos (ferramentas, sistemas, conhecimentos e as competências
+  comportamentais marcadas), sem repetir, com o nome oficial da ferramenta e sem detalhes de contexto
+  (ex.: "instagram da lanchonete" → "Instagram"; "excel básico" → "Excel (básico)"; "whatsapp business" → "WhatsApp Business").
+- "idiomas": "Idioma – nível".
+- "outros": seções extras quando houver: "Projetos", "Trabalho voluntário", "Informações adicionais"
+  (CNH, disponibilidade e outras informações). Para quem não tem experiência, projetos, voluntariado e
+  atividades escolares são muito importantes: capriche neles.
+- "dicas": 3 a 6 dicas honestas e práticas para fortalecer o currículo (ex.: um curso gratuito na área desejada).
+- "perguntas": 3 a 6 perguntas específicas cuja resposta deixaria o currículo mais forte
+  (ex.: "Quantos clientes você atendia por dia na Loja X?", "Você usava algum sistema no caixa? Qual?").
+
+Escreva em português do Brasil.
+
+===== RESPOSTAS =====
+${respostas}
+===== FIM DAS RESPOSTAS =====`;
+
+const ESQUEMA_MONTAR = {
+  type: 'OBJECT',
+  properties: { curriculo: ESQUEMA.properties.curriculo, dicas: LISTA, perguntas: LISTA },
+  required: ['curriculo', 'dicas', 'perguntas'],
+};
+
+const exportar = { montarPrompt, ESQUEMA, PROMPT_VAGAS, ESQUEMA_VAGAS, PROMPT_TRIAGEM, ESQUEMA_TRIAGEM, PROMPT_MONTAR, ESQUEMA_MONTAR };
+if (typeof module !== 'undefined' && module.exports) module.exports = exportar;
+else raiz.Prompts = exportar;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+  <script>/* compartilhado/validar.js */
+// Verificação anti-invenção: confere, sem IA, se o que foi gerado está no currículo original.
+// Usado pelo servidor (Node) e pela versão online (navegador).
+(function (raiz) {
+
+const STOP = new Set(`a o e de da do das dos em no na nos nas um uma uns umas para por com sem sob
+sobre entre ate apos como que se ao aos à as os ou mas mais menos muito muita muitos muitas
+seu sua seus suas meu minha meus minhas este esta estes estas esse essa isso isto aquele aquela
+ja nao sim tambem bem quando onde qual quais cada todo toda todos todas outro outra outros outras
+pelo pela pelos pelas num numa sendo ser ter foi sao era ate atraves junto forma modo area areas
+the and of in to for with on at by an or`.split(/\s+/));
+
+const norm = s => String(s || '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().replace(/[^a-z0-9@]+/g, ' ').trim();
+const palavras = s => norm(s).split(' ').filter(Boolean);
+const numeros = s => (String(s || '').match(/\d+(?:[.,]\d+)*/g) || []).map(n => n.replace(/[.,]/g, ''));
+
+function validar(curriculoOriginal, resultado) {
+  const cvNorm = ' ' + norm(curriculoOriginal) + ' ';
+  const cvPalavras = new Set(palavras(curriculoOriginal));
+  const cvRadicais = new Set([...cvPalavras].filter(p => p.length >= 5).map(p => p.slice(0, 5)));
+  const cvNumeros = new Set(numeros(curriculoOriginal));
+
+  const vaga = resultado.vaga || {};
+  const vagaPalavras = new Set(palavras([vaga.texto_transcrito, ...(vaga.requisitos || [])].join(' ')));
+
+  // Considera variações (ex.: "gerenciei" x "gerenciamento") pelo radical de 5 letras.
+  const noCv = p => cvPalavras.has(p) || (p.length >= 6 && cvRadicais.has(p.slice(0, 5)));
+
+  const alertas = [];
+  const suspeitos = new Set();
+  const alertar = (gravidade, onde, texto, motivo) => alertas.push({ gravidade, onde, texto, motivo });
+
+  // Texto livre (reescrito pela IA): procura números novos e termos que só existem na vaga.
+  function checarTexto(onde, texto) {
+    if (!texto) return;
+    const numNovos = numeros(texto).filter(n => !cvNumeros.has(n));
+    if (numNovos.length) {
+      alertar('alta', onde, texto, `Número que não aparece no seu currículo: ${numNovos.join(', ')}`);
+      numNovos.forEach(n => suspeitos.add(n));
+    }
+    const daVaga = [...new Set(palavras(texto))]
+      .filter(p => p.length >= 4 && !STOP.has(p) && !/^\d+$/.test(p) && !noCv(p) && vagaPalavras.has(p));
+    if (daVaga.length) {
+      alertar('media', onde, texto, `Usou termo da vaga que não está no seu currículo (confira se é a mesma coisa que você fez): ${daVaga.join(', ')}`);
+      daVaga.forEach(p => suspeitos.add(p));
+    }
+  }
+
+  // Dado factual (cargo, empresa, curso...): todas as palavras precisam existir no original.
+  function checarFato(onde, texto) {
+    if (!texto) return;
+    const faltando = palavras(texto).filter(p => !STOP.has(p) && !noCv(p));
+    if (faltando.length) {
+      alertar('alta', onde, texto, `Não encontrado no seu currículo: ${faltando.join(', ')}`);
+      faltando.forEach(p => suspeitos.add(p));
+    }
+  }
+
+  function fonteExiste(fonte) {
+    const n = norm(fonte);
+    if (!n) return false;
+    if (cvNorm.includes(' ' + n + ' ')) return true;
+    // Tolera pequenas diferenças (quebra de linha, hífen) em trechos de tamanho razoável.
+    const ps = palavras(fonte).filter(p => !STOP.has(p));
+    return ps.length >= 3 && ps.filter(noCv).length / ps.length >= 0.85;
+  }
+
+  const cv = resultado.curriculo || {};
+  checarFato('Nome', cv.nome);
+  (cv.contatos || []).forEach(c => checarFato('Contato', c));
+  checarTexto('Resumo', cv.resumo);
+  (cv.resumo_fontes || []).forEach(f => {
+    if (!fonteExiste(f)) alertar('media', 'Resumo', f, 'A IA citou como fonte um trecho que não está no seu currículo');
+  });
+  (cv.competencias || []).forEach(c => checarFato('Competências', c));
+
+  (cv.experiencias || []).forEach(exp => {
+    const onde = `Experiência: ${exp.cargo || ''}${exp.empresa ? ' — ' + exp.empresa : ''}`;
+    checarFato(onde, exp.cargo);
+    checarFato(onde, exp.empresa);
+    checarFato(onde, exp.periodo);
+    checarFato(onde, exp.local);
+    (exp.itens || []).forEach(it => {
+      if (!fonteExiste(it.fonte)) {
+        alertar('alta', onde, it.texto, 'Item sem trecho correspondente no seu currículo (possível invenção)');
+      }
+      checarTexto(onde, it.texto);
+    });
+  });
+
+  (cv.formacao || []).forEach(f => {
+    checarFato('Formação', f.curso);
+    checarFato('Formação', f.instituicao);
+    checarFato('Formação', f.periodo);
+  });
+  (cv.cursos || []).forEach(c => checarFato('Cursos', c));
+  (cv.idiomas || []).forEach(i => checarFato('Idiomas', i));
+  (cv.outros || []).forEach(o => (o.itens || []).forEach(i => checarTexto(o.titulo || 'Outros', i)));
+
+  return {
+    alertas,
+    termosSuspeitos: [...suspeitos],
+    aprovado: !alertas.some(a => a.gravidade === 'alta'),
+  };
+}
+
+// Compatibilidade por palavras-chave, como os filtros automáticos de RH:
+// quantas palavras-chave da vaga aparecem no currículo original e no adaptado.
+function compatibilidade(curriculoOriginal, resultado) {
+  const vaga = resultado.vaga || {};
+  const chaves = [...new Set((vaga.palavras_chave?.length ? vaga.palavras_chave : vaga.requisitos || [])
+    .map(k => String(k).trim()).filter(Boolean))];
+
+  const c = resultado.curriculo || {};
+  const adaptado = [
+    c.objetivo, c.resumo, ...(c.competencias || []), ...(c.cursos || []), ...(c.idiomas || []),
+    ...(c.experiencias || []).flatMap(e => [e.cargo, ...(e.itens || []).map(i => i.texto)]),
+    ...(c.formacao || []).flatMap(f => [f.curso, f.instituicao]),
+    ...(c.outros || []).flatMap(o => o.itens || []),
+  ].join(' ');
+
+  const indice = texto => {
+    const ps = new Set(palavras(texto));
+    const rad = new Set([...ps].filter(p => p.length >= 5).map(p => p.slice(0, 5)));
+    return p => ps.has(p) || (p.length >= 6 && rad.has(p.slice(0, 5)));
+  };
+  const temNoOriginal = indice(curriculoOriginal);
+  const temNoAdaptado = indice(adaptado);
+  const contem = (tem, chave) => {
+    const ps = palavras(chave).filter(p => !STOP.has(p));
+    return ps.length > 0 && ps.every(tem);
+  };
+
+  const antes = chaves.filter(k => contem(temNoOriginal, k));
+  const depois = chaves.filter(k => contem(temNoAdaptado, k));
+  const pct = n => chaves.length ? Math.round((n / chaves.length) * 100) : 0;
+  return {
+    total: chaves.length,
+    antes: pct(antes.length),
+    depois: pct(depois.length),
+    encontradas: depois,
+    faltando: chaves.filter(k => !depois.includes(k)),
+  };
+}
+
+const exportar = { validar, compatibilidade, norm };
+if (typeof module !== 'undefined' && module.exports) module.exports = exportar;
+else raiz.Validacao = exportar;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+  <script>/* local-api.js */
+// Versão online (sem servidor): faz no próprio navegador o que o server.js faz no PC.
+// Cada pessoa usa a própria chave do Gemini, e tudo fica salvo só neste aparelho (localStorage).
+(function () {
+  const { montarPrompt, ESQUEMA, PROMPT_VAGAS, ESQUEMA_VAGAS, PROMPT_TRIAGEM, ESQUEMA_TRIAGEM, PROMPT_MONTAR, ESQUEMA_MONTAR } = window.Prompts;
+  const { validar, compatibilidade } = window.Validacao;
+
+  // ---------- armazenamento no aparelho ----------
+  const PREFIXO = 'adaptador:';
+  const ler = (chave, padrao) => {
+    try { const v = localStorage.getItem(PREFIXO + chave); return v === null ? padrao : JSON.parse(v); } catch { return padrao; }
+  };
+  const salvar = (chave, valor) => {
+    try { localStorage.setItem(PREFIXO + chave, JSON.stringify(valor)); }
+    catch { throw new Error('O armazenamento do navegador está cheio. Apague adaptações antigas do histórico.'); }
+  };
+  const MAX_HISTORICO = 30;
+
+  const hojeLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+  // ---------- Gemini direto do navegador ----------
+  const MODELOS_PADRAO = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
+  const TEMPO_LIMITE_MS = 45000;
+  const pausados = new Map();
+
+  async function modelosDisponiveis(chave) {
+    try {
+      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': chave } });
+      const j = await r.json();
+      return (j.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map(m => m.name.replace('models/', ''))
+        .filter(n => /flash/.test(n) && !/(image|tts|live|audio|thinking|exp|preview)/.test(n))
+        .sort().reverse()
+        .sort((a, b) => /lite/.test(a) - /lite/.test(b));
+    } catch { return []; }
+  }
+
+  async function chamarGemini(chave, modelo, partes, esquema) {
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: partes }], generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: esquema } }),
+        signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
+      });
+    } catch {
+      const e = new Error(navigator.onLine === false ? 'Sem internet no aparelho.' : `O modelo ${modelo} não respondeu a tempo.`);
+      e.status = 504;
+      throw e;
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.error?.message || `Erro ${r.status} da API do Gemini`); e.status = r.status; throw e; }
+    const texto = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+    if (!texto) throw new Error('A IA não retornou conteúdo. Tente de novo.');
+    return JSON.parse(texto);
+  }
+
+  async function gerar(partes, esquema) {
+    const cfg = ler('config', {});
+    if (!cfg.apiKey) throw new Error('Configure sua chave gratuita do Google Gemini primeiro (passo 1).');
+    let fila = [cfg.modelo || MODELOS_PADRAO[0], ...MODELOS_PADRAO];
+    const agora = Date.now();
+    fila.sort((a, b) => ((pausados.get(a) || 0) > agora) - ((pausados.get(b) || 0) > agora));
+    let ultimoErro, buscouLista = false;
+    const tentados = new Set();
+    while (fila.length) {
+      const modelo = fila.shift();
+      if (tentados.has(modelo)) continue;
+      tentados.add(modelo);
+      try {
+        return { resultado: await chamarGemini(cfg.apiKey, modelo, partes, esquema), modelo };
+      } catch (e) {
+        ultimoErro = e;
+        if ([429, 503, 504].includes(e.status)) pausados.set(modelo, Date.now() + 5 * 60 * 1000);
+        if (e.status === 400 && /api key/i.test(e.message)) throw new Error('A chave do Gemini é inválida. Confira no passo 1.');
+        if (![404, 429, 500, 503, 504].includes(e.status)) break;
+        if (!fila.length && !buscouLista) { buscouLista = true; fila = await modelosDisponiveis(cfg.apiKey); }
+      }
+    }
+    if (ultimoErro?.status === 429) throw new Error('Limite gratuito da IA atingido por agora. Espere um minuto e tente de novo.');
+    throw ultimoErro;
+  }
+
+  const partesComImagens = (texto, imagens) =>
+    [{ text: texto }, ...imagens.map(img => ({ inline_data: { mime_type: img.mime, data: img.data } }))];
+
+  // ---------- histórico ----------
+  const lerHistorico = () => ler('historico', []);
+  function guardarNoHistorico(reg) {
+    const h = [reg, ...lerHistorico()].slice(0, MAX_HISTORICO);
+    salvar('historico', h);
+    return reg;
+  }
+
+  // ---------- candidaturas (mesmas regras do servidor) ----------
+  const STATUS = ['enviado', 'analise', 'entrevista', 'teste', 'aprovado', 'reprovado', 'sem_resposta'];
+  const CAMPOS = ['cargo', 'empresa', 'canal', 'contato', 'link', 'dataEnvio', 'status', 'proximoContato', 'obs', 'adaptacaoId'];
+  function limpar(dados) {
+    const c = {};
+    for (const k of CAMPOS) if (dados[k] !== undefined) c[k] = String(dados[k] ?? '').slice(0, 2000);
+    if (c.status && !STATUS.includes(c.status)) delete c.status;
+    return c;
+  }
+
+  // ---------- rotas: mesmas URLs que o app usa com o servidor ----------
+  window.apiLocal = async function (url, opcoes = {}) {
+    const metodo = (opcoes.method || 'GET').toUpperCase();
+    const corpo = opcoes.body || {};
+    const id = (url.match(/\/(\d+)$/) || [])[1];
+
+    if (url === '/api/estado') {
+      const cfg = ler('config', {});
+      return { temChave: !!cfg.apiKey, modelo: cfg.modelo || MODELOS_PADRAO[0], curriculo: ler('curriculo', ''), online: true };
+    }
+    if (url === '/api/config') {
+      const cfg = ler('config', {});
+      if (corpo.apiKey !== undefined) cfg.apiKey = String(corpo.apiKey).trim();
+      if (corpo.modelo) cfg.modelo = String(corpo.modelo).trim();
+      salvar('config', cfg);
+      return { ok: true };
+    }
+    if (url === '/api/testar-chave') {
+      const chave = String(corpo.apiKey || '').replace(/\s+/g, '');
+      if (chave.length < 20) throw new Error('Isso não parece uma chave completa. Copie a chave inteira no site do Google.');
+      let r;
+      try {
+        r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1', {
+          headers: { 'x-goog-api-key': chave }, signal: AbortSignal.timeout(15000),
+        });
+      } catch { throw new Error('Não consegui falar com o Google. Confira a internet e tente de novo.'); }
+      if (r.ok) return { ok: true };
+      if (r.status === 400 || r.status === 401) throw new Error('Essa chave não funcionou. Confira se copiou ela inteira, sem espaços.');
+      if (r.status === 403) throw new Error('O Google recusou essa chave. Crie uma chave nova no site do Google e cole de novo.');
+      throw new Error(`O Google respondeu com erro ${r.status}. Tente de novo em instantes.`);
+    }
+    if (url === '/api/curriculo') { salvar('curriculo', String(corpo.texto || '')); return { ok: true }; }
+
+    if (url === '/api/vagas') {
+      const { imagens = [], textoVaga = '' } = corpo;
+      if (!imagens.length && !textoVaga.trim()) throw new Error('Envie a foto/print da vaga ou cole o texto dela.');
+      const { resultado } = await gerar(partesComImagens(PROMPT_VAGAS(textoVaga), imagens), ESQUEMA_VAGAS);
+      return { vagas: resultado.vagas || [] };
+    }
+    if (url === '/api/adaptar') {
+      const cv = ler('curriculo', '');
+      const { imagens = [], textoVaga = '' } = corpo;
+      if (!cv.trim()) throw new Error('Cadastre seu currículo primeiro.');
+      if (!imagens.length && !textoVaga.trim()) throw new Error('Envie a foto/print da vaga ou cole o texto dela.');
+      const { resultado, modelo } = await gerar(partesComImagens(montarPrompt(cv, textoVaga), imagens), ESQUEMA);
+      return guardarNoHistorico({
+        id: Date.now().toString(), data: new Date().toISOString(), modelo, resultado,
+        verificacao: validar(cv, resultado), compatibilidade: compatibilidade(cv, resultado),
+      });
+    }
+    if (url === '/api/montar') {
+      const respostas = String(corpo.respostas || '');
+      if (respostas.trim().length < 40) throw new Error('Preencha pelo menos seus dados e uma formação ou experiência.');
+      const { resultado, modelo } = await gerar([{ text: PROMPT_MONTAR(respostas) }], ESQUEMA_MONTAR);
+      const curriculo = resultado.curriculo || {};
+      return guardarNoHistorico({
+        id: Date.now().toString(), data: new Date().toISOString(), modelo, tipo: 'base', respostas,
+        resultado: { vaga: { cargo: 'Currículo montado do zero', texto_transcrito: '' }, curriculo, dicas: resultado.dicas || [], perguntas: resultado.perguntas || [] },
+        verificacao: validar(respostas, { vaga: {}, curriculo }),
+      });
+    }
+    if (url === '/api/triagem') {
+      const h = lerHistorico();
+      const reg = h.find(r => r.id === String(corpo.id));
+      if (!reg) throw new Error('Adaptação não encontrada no histórico.');
+      if (!String(corpo.textoCv || '').trim()) throw new Error('O currículo está vazio.');
+      const { resultado, modelo } = await gerar([{ text: PROMPT_TRIAGEM(reg.resultado?.vaga?.texto_transcrito || '', corpo.textoCv) }], ESQUEMA_TRIAGEM);
+      reg.triagem = { ...resultado, modelo, data: new Date().toISOString() };
+      salvar('historico', h);
+      return reg.triagem;
+    }
+
+    if (url === '/api/historico') {
+      return lerHistorico().map(r => ({ id: r.id, data: r.data, cargo: r.resultado?.vaga?.cargo, empresa: r.resultado?.vaga?.empresa }));
+    }
+    if (url.startsWith('/api/historico/')) {
+      const h = lerHistorico();
+      if (metodo === 'DELETE') { salvar('historico', h.filter(r => r.id !== id)); return { ok: true }; }
+      const reg = h.find(r => r.id === id);
+      if (!reg) throw new Error('Não encontrado no histórico.');
+      return reg;
+    }
+
+    if (url === '/api/candidaturas' && metodo === 'GET') return ler('candidaturas', []);
+    if (url === '/api/candidaturas' && metodo === 'POST') {
+      const c = limpar(corpo);
+      if (!c.cargo && !c.empresa) throw new Error('Informe pelo menos o cargo ou a empresa.');
+      const nova = {
+        id: Date.now().toString(), cargo: '', empresa: '', canal: '', contato: '', link: '', obs: '', adaptacaoId: '', proximoContato: '',
+        ...c, dataEnvio: c.dataEnvio || hojeLocal(), status: c.status || 'enviado',
+      };
+      nova.historico = [{ data: new Date().toISOString(), status: nova.status }];
+      salvar('candidaturas', [nova, ...ler('candidaturas', [])]);
+      return nova;
+    }
+    if (url.startsWith('/api/candidaturas/')) {
+      const lista = ler('candidaturas', []);
+      if (metodo === 'DELETE') { salvar('candidaturas', lista.filter(c => c.id !== id)); return { ok: true }; }
+      const c = lista.find(x => x.id === id);
+      if (!c) throw new Error('Candidatura não encontrada.');
+      const m = limpar(corpo);
+      if (m.status && m.status !== c.status) c.historico = [...(c.historico || []), { data: new Date().toISOString(), status: m.status }];
+      Object.assign(c, m, { atualizado: new Date().toISOString() });
+      salvar('candidaturas', lista);
+      return c;
+    }
+    throw new Error('Função indisponível na versão online.');
+  };
+})();
+
+</script>
+  <script>/* docx.js */
+// Gera um .docx de verdade (Word/Gupy leem corretamente) a partir do currículo exibido na tela.
+// Sem bibliotecas: monta o XML do Word e empacota num ZIP simples (sem compressão).
+(function () {
+  const LARGURA_TEXTO = 9638; // A4 (11906) menos margens de 2 cm, em twips
+
+  // Aparência de cada layout no Word (tamanhos em meio-ponto, como o Word usa)
+  const ESTILOS = {
+    a: { // Clássico
+      fonte: 'Calibri', fonteTitulo: 'Cambria', marcador: '–',
+      nome: { sz: 46, cor: '111111', fonte: 'Cambria' },
+      objetivo: { sz: 23, i: true, cor: '333333' },
+      contatos: { sz: 19, cor: '444444' }, linhaAbaixoContatos: '222222',
+      titulo: { sz: 27, b: true, smallCaps: true, cor: '111111', fonte: 'Cambria' },
+      periodo: { i: true, cor: '555555' }, empresa: { cor: '444444', sz: 20 },
+    },
+    b: { // Minimalista
+      fonte: 'Segoe UI', marcador: '•',
+      nome: { sz: 42, b: true, cor: '1C1C1C' },
+      objetivo: { sz: 22, cor: '555555' },
+      contatos: { sz: 18, cor: '555555' },
+      titulo: { sz: 19, b: true, cor: '777777' },
+      periodo: { cor: '777777', sz: 18 }, empresa: { cor: '666666', sz: 18 },
+    },
+    c: { // Tradicional
+      fonte: 'Arial', marcador: '•', centralizarCabecalho: true,
+      nome: { sz: 34, b: true, caps: true, cor: '111111' },
+      objetivo: { sz: 21, cor: '222222' },
+      contatos: { sz: 18, cor: '222222' },
+      titulo: { sz: 21, b: true, caps: true, cor: '111111' }, faixaTitulo: 'ECECEC',
+      periodo: { cor: '222222' }, empresa: { cor: '333333', sz: 19 },
+    },
+  };
+
+  const xml = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const texto = el => (el?.innerText || '').replace(/\s+/g, ' ').trim();
+
+  function run(t, o = {}) {
+    if (!t) return '';
+    const rpr = [
+      o.fonte && `<w:rFonts w:ascii="${o.fonte}" w:hAnsi="${o.fonte}" w:cs="${o.fonte}"/>`,
+      o.b && '<w:b/>', o.i && '<w:i/>', o.caps && '<w:caps/>', o.smallCaps && '<w:smallCaps/>',
+      o.cor && `<w:color w:val="${o.cor}"/>`, o.sz && `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>`,
+    ].filter(Boolean).join('');
+    return `<w:r>${rpr ? `<w:rPr>${rpr}</w:rPr>` : ''}<w:t xml:space="preserve">${xml(t)}</w:t></w:r>`;
+  }
+  const tab = '<w:r><w:tab/></w:r>';
+
+  function par(runs, o = {}) {
+    const ppr = [ // ordem exigida pelo formato do Word
+      o.manterProximo && '<w:keepNext/>',
+      o.borda && `<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="${o.borda}"/></w:pBdr>`,
+      o.faixa && `<w:shd w:val="clear" w:color="auto" w:fill="${o.faixa}"/>`,
+      o.tabDireita && `<w:tabs><w:tab w:val="right" w:pos="${LARGURA_TEXTO}"/></w:tabs>`,
+      `<w:spacing w:before="${o.antes || 0}" w:after="${o.depois ?? 40}"/>`,
+      o.recuo && '<w:ind w:left="284" w:hanging="200"/>',
+      o.centro ? '<w:jc w:val="center"/>' : o.justificado && '<w:jc w:val="both"/>',
+    ].filter(Boolean).join('');
+    return `<w:p><w:pPr>${ppr}</w:pPr>${runs}</w:p>`;
+  }
+
+  // Converte cada bloco do currículo (h1, h2, experiência, listas...) em parágrafos do Word.
+  function corpo(cv, E) {
+    const out = [];
+    const centro = !!E.centralizarCabecalho;
+    const lista = ul => ul.querySelectorAll(':scope > li').forEach(li =>
+      out.push(par(run(E.marcador) + tab + run(texto(li)), { recuo: true, depois: 20 })));
+    for (const el of cv.children) {
+      const c = el.classList;
+      if (el.tagName === 'H1') out.push(par(run(texto(el), E.nome), { depois: 20, centro }));
+      else if (c.contains('objetivo')) out.push(par(run(texto(el), E.objetivo), { depois: 20, centro }));
+      else if (c.contains('contatos')) out.push(par(run(texto(el), E.contatos), { depois: 120, centro, borda: E.linhaAbaixoContatos }));
+      else if (el.tagName === 'H2') out.push(par(run(texto(el), E.titulo), { faixa: E.faixaTitulo, antes: 200, depois: 80, manterProximo: true }));
+      else if (el.tagName === 'UL') lista(el);
+      else if (c.contains('exp')) {
+        const topo = el.querySelector('.exp-topo');
+        if (topo) {
+          const cargo = texto(topo.querySelector('strong')), periodo = texto(topo.querySelector('.periodo'));
+          out.push(par(run(cargo, { b: true, sz: 22 }) + (periodo ? tab + run(periodo, E.periodo) : ''), { tabDireita: true, antes: 80, depois: 0, manterProximo: true }));
+        }
+        const empresa = el.querySelector('.empresa');
+        if (empresa && texto(empresa)) out.push(par(run(texto(empresa), E.empresa), { depois: 20 }));
+        el.querySelectorAll('ul').forEach(lista);
+      } else if (texto(el)) out.push(par(run(texto(el)), { justificado: true, depois: 60 }));
+    }
+    return out.join('');
+  }
+
+  const estilos = fonte => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr>'
+    + `<w:rFonts w:ascii="${fonte}" w:hAnsi="${fonte}" w:eastAsia="${fonte}" w:cs="${fonte}"/>`
+    + '<w:color w:val="1A1A1A"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="40" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>';
+
+  const ARQUIVOS_FIXOS = {
+    '[Content_Types].xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
+    '_rels/.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    'word/_rels/document.xml.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+  };
+
+  function documento(cv, E) {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+      + corpo(cv, E)
+      + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1021" w:right="1134" w:bottom="1021" w:left="1134" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr>'
+      + '</w:body></w:document>';
+  }
+
+  // ---- ZIP mínimo (método "store") ----
+  const TABELA_CRC = Array.from({ length: 256 }, (_, n) => {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    return c >>> 0;
+  });
+  function crc32(bytes) {
+    let c = 0xFFFFFFFF;
+    for (const b of bytes) c = TABELA_CRC[(c ^ b) & 255] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function zip(arquivos) {
+    const enc = new TextEncoder();
+    const partes = [], central = [];
+    let offset = 0;
+    for (const [nome, conteudo] of Object.entries(arquivos)) {
+      const n = enc.encode(nome), dados = enc.encode(conteudo), crc = crc32(dados);
+      const local = new DataView(new ArrayBuffer(30));
+      local.setUint32(0, 0x04034b50, true); local.setUint16(4, 20, true); local.setUint16(6, 0x0800, true);
+      local.setUint16(8, 0, true); local.setUint16(10, 0, true); local.setUint16(12, 0x21, true);
+      local.setUint32(14, crc, true); local.setUint32(18, dados.length, true); local.setUint32(22, dados.length, true);
+      local.setUint16(26, n.length, true); local.setUint16(28, 0, true);
+      partes.push(new Uint8Array(local.buffer), n, dados);
+
+      const cd = new DataView(new ArrayBuffer(46));
+      cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true); cd.setUint16(8, 0x0800, true);
+      cd.setUint16(10, 0, true); cd.setUint16(12, 0, true); cd.setUint16(14, 0x21, true);
+      cd.setUint32(16, crc, true); cd.setUint32(20, dados.length, true); cd.setUint32(24, dados.length, true);
+      cd.setUint16(28, n.length, true); cd.setUint32(42, offset, true);
+      central.push(new Uint8Array(cd.buffer), n);
+      offset += 30 + n.length + dados.length;
+    }
+    const tamCentral = central.reduce((s, p) => s + p.length, 0);
+    const fim = new DataView(new ArrayBuffer(22));
+    const qtd = Object.keys(arquivos).length;
+    fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, qtd, true); fim.setUint16(10, qtd, true);
+    fim.setUint32(12, tamCentral, true); fim.setUint32(16, offset, true);
+    return new Blob([...partes, ...central, new Uint8Array(fim.buffer)],
+      { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
+
+  window.gerarDocx = (cv, layout = 'a') => {
+    const E = ESTILOS[layout] || ESTILOS.a;
+    return zip({ ...ARQUIVOS_FIXOS, 'word/styles.xml': estilos(E.fonte), 'word/document.xml': documento(cv, E) });
+  };
+})();
+
+</script>
+  <script>/* app.js */
+const $ = id => document.getElementById(id);
+let imagens = [];          // [{mime, data, url}]
+let atual = null;          // registro exibido
+
+// Com o servidor do PC (iniciar.bat) usa a API dele; sem servidor (versão online) tudo roda no navegador.
+let semServidorCache = null;
+async function semServidor() {
+  if (semServidorCache === null) {
+    try {
+      const r = await fetch('/api/estado', { cache: 'no-store' });
+      semServidorCache = !(r.ok && (r.headers.get('content-type') || '').includes('json'));
+    } catch { semServidorCache = true; }
+  }
+  return semServidorCache;
+}
+
+const api = async (url, opcoes = {}) => {
+  if (await semServidor()) {
+    if (typeof window.apiLocal !== 'function') {
+      throw new Error('O site foi publicado incompleto (faltou parte dos arquivos). Publique de novo o index.html da pasta site-online.');
+    }
+    return window.apiLocal(url, opcoes);
+  }
+  const r = await fetch(url, {
+    ...opcoes,
+    headers: { 'Content-Type': 'application/json' },
+    body: opcoes.body ? JSON.stringify(opcoes.body) : undefined,
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.erro || 'Erro inesperado');
+  return j;
+};
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9@]+/g, '');
+
+// ---------- Estado inicial ----------
+async function iniciar() {
+  const e = await api('/api/estado');
+  if (e.online) document.body.classList.add('modo-online');
+  mostrarChave(e.temChave);
+  $('textoCv').value = e.curriculo || '';
+  carregarHistorico();
+}
+
+function mostrarChave(tem) {
+  $('chaveOk').hidden = !tem;
+  $('chaveForm').hidden = tem;
+}
+
+// Testa a chave no Google antes de salvar, para a pessoa saber na hora se deu certo.
+let testandoChave = false;
+async function ativarChave() {
+  const chave = $('apiKey').value.replace(/\s+/g, '');
+  const status = $('chaveStatus');
+  if (!chave) { status.className = 'chave-status erro'; status.textContent = 'Cole a chave primeiro (passo 4).'; return; }
+  if (testandoChave) return;
+  testandoChave = true;
+  status.className = 'chave-status';
+  status.textContent = '⏳ Conferindo a chave…';
+  try {
+    await api('/api/testar-chave', { method: 'POST', body: { apiKey: chave } });
+    await api('/api/config', { method: 'POST', body: { apiKey: chave } });
+    $('apiKey').value = '';
+    status.textContent = '';
+    mostrarChave(true);
+  } catch (e) {
+    status.className = 'chave-status erro';
+    status.textContent = '✘ ' + e.message;
+  } finally {
+    testandoChave = false;
+  }
+}
+$('salvarChave').onclick = ativarChave;
+// Colou algo com cara de chave? Já testa sozinho.
+$('apiKey').addEventListener('input', () => { if ($('apiKey').value.trim().length >= 30) ativarChave(); });
+$('colarChave').onclick = async () => {
+  try {
+    const texto = (await navigator.clipboard.readText()).trim();
+    if (!texto) throw new Error();
+    $('apiKey').value = texto;
+    ativarChave();
+  } catch {
+    $('chaveStatus').className = 'chave-status erro';
+    $('chaveStatus').textContent = 'Não consegui ler o que você copiou. Toque e segure no campo abaixo e escolha "Colar".';
+    $('apiKey').focus();
+  }
+};
+$('trocarChave').onclick = () => mostrarChave(false);
+
+// ---------- Currículo ----------
+$('arquivoCv').onchange = async ev => {
+  const arq = ev.target.files[0];
+  if (!arq) return;
+  $('cvStatus').textContent = 'Lendo arquivo…';
+  try {
+    let texto;
+    if (/\.pdf$/i.test(arq.name)) texto = await lerPdf(arq);
+    else if (/\.docx$/i.test(arq.name)) texto = (await mammoth.extractRawText({ arrayBuffer: await arq.arrayBuffer() })).value;
+    else texto = await arq.text();
+    $('textoCv').value = texto.replace(/\n{3,}/g, '\n\n').trim();
+    $('cvStatus').textContent = 'Texto extraído — confira e clique em Salvar.';
+  } catch (e) {
+    $('cvStatus').textContent = '';
+    alert('Não consegui ler o arquivo: ' + e.message + '\nTente copiar e colar o texto.');
+  }
+  ev.target.value = '';
+};
+
+async function lerPdf(arq) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  const pdf = await pdfjsLib.getDocument({ data: await arq.arrayBuffer() }).promise;
+  let texto = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const pag = await (await pdf.getPage(i)).getTextContent();
+    for (const item of pag.items) texto += item.str + (item.hasEOL ? '\n' : '');
+    texto += '\n\n';
+  }
+  if (!texto.trim()) throw new Error('o PDF parece ser uma imagem escaneada, sem texto');
+  return texto;
+}
+
+$('salvarCv').onclick = async () => {
+  await api('/api/curriculo', { method: 'POST', body: { texto: $('textoCv').value } });
+  $('cvStatus').textContent = '✔ Currículo salvo';
+};
+
+// ---------- Imagens da vaga ----------
+const zona = $('zona');
+zona.onclick = () => $('arquivoVaga').click();
+zona.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') $('arquivoVaga').click(); };
+$('arquivoVaga').onchange = e => { adicionarImagens(e.target.files); e.target.value = ''; };
+zona.ondragover = e => { e.preventDefault(); zona.classList.add('arrastando'); };
+zona.ondragleave = () => zona.classList.remove('arrastando');
+zona.ondrop = e => { e.preventDefault(); zona.classList.remove('arrastando'); adicionarImagens(e.dataTransfer.files); };
+document.addEventListener('paste', e => {
+  if (e.target.closest && e.target.closest('textarea, input, [contenteditable]')) return;
+  const arqs = [...e.clipboardData.items].filter(i => i.type.startsWith('image/')).map(i => i.getAsFile());
+  if (arqs.length) adicionarImagens(arqs);
+});
+
+// Reduz fotos grandes de celular para envio mais rápido, mantendo o texto legível.
+function prepararImagem(arq) {
+  return new Promise((ok, falha) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 2200;
+      const escala = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * escala);
+      c.height = Math.round(img.height * escala);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const url = c.toDataURL('image/jpeg', 0.9);
+      ok({ mime: 'image/jpeg', data: url.split(',')[1], url });
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => falha(new Error('imagem inválida'));
+    img.src = URL.createObjectURL(arq);
+  });
+}
+
+async function adicionarImagens(lista) {
+  for (const arq of lista) {
+    if (!arq.type.startsWith('image/')) continue;
+    try { imagens.push(await prepararImagem(arq)); } catch { alert('Não consegui abrir ' + arq.name); }
+  }
+  desenharMiniaturas();
+}
+
+function desenharMiniaturas() {
+  $('miniaturas').innerHTML = imagens.map((im, i) =>
+    `<div><img src="${im.url}" alt="Vaga ${i + 1}"><button title="Remover" data-i="${i}">×</button></div>`).join('');
+  $('miniaturas').querySelectorAll('button').forEach(b => b.onclick = () => {
+    imagens.splice(+b.dataset.i, 1);
+    desenharMiniaturas();
+  });
+}
+
+// ---------- Adaptar ----------
+function ocupado(sim, msg = '') {
+  $('adaptar').disabled = sim;
+  $('carregando').hidden = !sim;
+  if (sim) {
+    $('msgCarregando').textContent = msg;
+    $('placeholder').hidden = true;
+    $('saida').hidden = true;
+    $('escolha').hidden = true;
+  }
+}
+
+// 1ª etapa: descobre quantas vagas tem no anúncio. Uma só → adapta direto; várias → deixa escolher.
+$('adaptar').onclick = async () => {
+  if (!$('textoCv').value.trim()) return alert('Cadastre seu currículo no passo 2.');
+  if (!imagens.length && !$('textoVaga').value.trim()) return alert('Envie a foto da vaga ou cole o texto dela.');
+  ocupado(true, 'Lendo o anúncio e procurando as vagas…');
+  let vagas;
+  try {
+    ({ vagas } = await api('/api/vagas', {
+      method: 'POST',
+      body: { imagens: imagens.map(({ mime, data }) => ({ mime, data })), textoVaga: $('textoVaga').value },
+    }));
+    if (!vagas.length) throw new Error('Não encontrei nenhuma vaga na imagem/texto. Tente uma foto mais nítida.');
+  } catch (e) {
+    ocupado(false);
+    $('placeholder').hidden = false;
+    return alert(e.message);
+  }
+  ocupado(false);
+  if (vagas.length === 1) adaptarVagas(vagas);
+  else mostrarEscolha(vagas);
+};
+
+function mostrarEscolha(vagas) {
+  $('placeholder').hidden = true;
+  $('saida').hidden = true;
+  $('escolha').hidden = false;
+  $('escolhaTitulo').textContent = `Encontrei ${vagas.length} vagas neste anúncio. Para qual(is) você quer o currículo?`;
+  $('listaVagas').innerHTML = vagas.map((v, i) => `
+    <label class="opcao-vaga">
+      <input type="checkbox" value="${i}">
+      <span><b>${esc(v.cargo)}</b>${v.empresa ? ` <small>— ${esc(v.empresa)}</small>` : ''}
+        ${v.resumo ? `<br><small>${esc(v.resumo)}</small>` : ''}</span>
+    </label>`).join('');
+  $('todasVagas').onclick = () => $('listaVagas').querySelectorAll('input').forEach(c => { c.checked = true; });
+  $('adaptarEscolhidas').onclick = () => {
+    const escolhidas = [...$('listaVagas').querySelectorAll('input:checked')].map(c => vagas[+c.value]);
+    if (!escolhidas.length) return alert('Marque pelo menos uma vaga.');
+    adaptarVagas(escolhidas, vagas.length > 1);
+  };
+}
+
+const textoDaVaga = (v, variasNoAnuncio) => (variasNoAnuncio
+  ? `ATENÇÃO: este anúncio oferece várias vagas. Adapte o currículo SOMENTE para a vaga "${v.cargo}".\n\n`
+  : '') + v.texto_completo;
+
+// 2ª etapa: um currículo adaptado para cada vaga escolhida (uma de cada vez, por causa do limite gratuito).
+async function adaptarVagas(lista, variasNoAnuncio = false) {
+  const gerados = [];
+  try {
+    // Garante que a versão do currículo na tela é a que será usada.
+    await api('/api/curriculo', { method: 'POST', body: { texto: $('textoCv').value } });
+    for (const [i, v] of lista.entries()) {
+      ocupado(true, lista.length > 1
+        ? `Adaptando para “${v.cargo}” (${i + 1} de ${lista.length})…`
+        : 'Adaptando seu currículo para a vaga…');
+      gerados.push(await api('/api/adaptar', { method: 'POST', body: { imagens: [], textoVaga: textoDaVaga(v, variasNoAnuncio) } }));
+    }
+  } catch (e) {
+    alert(e.message + (gerados.length ? `\n\n${gerados.length} currículo(s) foram gerados antes do erro.` : ''));
+  } finally {
+    ocupado(false);
+  }
+  geradosAgora = gerados;
+  if (gerados.length) exibir(gerados[0]);
+  else $('placeholder').hidden = false;
+  carregarHistorico();
+}
+
+// Abas para alternar entre os currículos gerados para várias vagas do mesmo anúncio.
+let geradosAgora = [];
+function desenharAbas() {
+  const naLista = geradosAgora.some(g => g.id === atual.id);
+  $('abas').hidden = !(naLista && geradosAgora.length > 1);
+  if ($('abas').hidden) return;
+  $('abas').innerHTML = geradosAgora.map(g => `
+    <button class="aba ${g.id === atual.id ? 'ativa' : ''}" data-id="${g.id}">
+      ${esc(g.resultado.vaga?.cargo || 'Vaga')} <small>${g.compatibilidade ? g.compatibilidade.depois + '%' : ''}</small>
+    </button>`).join('');
+  $('abas').querySelectorAll('button').forEach(b => b.onclick = () => exibir(geradosAgora.find(g => g.id === b.dataset.id)));
+}
+
+// ---------- Exibição ----------
+function exibir(reg) {
+  atual = reg;
+  const { resultado, verificacao } = reg;
+  $('placeholder').hidden = true;
+  $('escolha').hidden = true;
+  $('saida').hidden = false;
+  desenharAbas();
+  desenharVerificacao(verificacao);
+  desenharAnalise(reg);
+  desenharTriagem(reg.triagem);
+  $('cv').innerHTML = montarCv(resultado.curriculo || {}, new Set((verificacao.termosSuspeitos || []).map(norm)));
+  $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function desenharVerificacao(v) {
+  const alertas = v.alertas || [];
+  if (!alertas.length) {
+    $('verificacao').innerHTML = `<div class="aviso ok">✔ <b>Verificação concluída:</b> tudo o que está no currículo adaptado foi encontrado no seu currículo original.</div>`;
+    return;
+  }
+  const altos = alertas.filter(a => a.gravidade === 'alta').length;
+  $('verificacao').innerHTML = `
+    <div class="aviso ${altos ? 'erro' : 'atencao'}">
+      <b>${altos ? '⚠ Confira antes de enviar:' : 'Pontos para conferir:'}</b>
+      a verificação automática encontrou ${alertas.length} trecho(s) que não batem exatamente com seu currículo original
+      (destacados em amarelo). Pode ser só uma reescrita, mas confira — edite ou apague se não for verdade.
+      <ul>${alertas.map(a => `<li><span class="grav">${a.gravidade === 'alta' ? 'Importante' : 'Atenção'}</span> · ${esc(a.onde)} — ${esc(a.motivo)}<br><em>“${esc(a.texto)}”</em></li>`).join('')}</ul>
+    </div>`;
+}
+
+function desenharAnalise(reg) {
+  // Currículo montado do zero não tem vaga: mostra dicas e o botão de usar como base
+  const base = reg.tipo === 'base';
+  $('triar').hidden = base;
+  $('marcarEnviada').hidden = base;
+  if (base) return desenharBase(reg);
+  const r = reg.resultado;
+  const a = r.analise || {};
+  const v = r.vaga || {};
+  const k = reg.compatibilidade;
+  const nota = Math.max(0, Math.min(100, a.compatibilidade || 0));
+  const lista = (itens, f) => itens?.length ? `<ul>${itens.map(f).join('')}</ul>` : '<p class="vazio">—</p>';
+  const botaoTenho = texto => `<button class="tenho" data-req="${esc(texto)}">Eu tenho isso</button>`;
+
+  const blocoChaves = k ? `
+    <div class="placar">
+      <div><small>Seu currículo original</small><b class="antes">${k.antes}%</b></div>
+      <span class="seta">→</span>
+      <div><small>Currículo adaptado</small><b class="depois">${k.depois}%</b></div>
+    </div>
+    <p class="ajuda">Porcentagem das ${k.total} palavras-chave da vaga que aparecem no currículo — é assim que os sistemas de RH fazem a primeira triagem.</p>
+    <div class="chips">
+      ${k.encontradas.map(c => `<span class="chip sim">✔ ${esc(c)}</span>`).join('')}
+      ${k.faltando.map(c => `<span class="chip nao">${esc(c)} ${botaoTenho(c)}</span>`).join('')}
+    </div>` : '';
+
+  $('analise').innerHTML = `
+    <h3>Vaga: ${esc(v.cargo || 'não identificada')}${v.empresa ? ' — ' + esc(v.empresa) : ''}</h3>
+    ${blocoChaves}
+    <div class="medidor"><span>Aderência real (avaliação da IA)</span><div class="trilho"><div class="barra-nota" style="width:${nota}%"></div></div><b>${nota}%</b></div>
+    <h3>✔ Requisitos que você atende</h3>
+    ${lista(a.requisitos_atendidos, x => `<li>${esc(x.requisito)}<br><span class="evid">no seu currículo: “${esc(x.evidencia)}”</span></li>`)}
+    <h3>✘ Requisitos que não estão no seu currículo</h3>
+    <p class="ajuda">Se você tem algum deles e só não tinha colocado no currículo, clique em “Eu tenho isso”: a informação entra no seu currículo base e a compatibilidade sobe na próxima adaptação.</p>
+    ${lista(a.requisitos_nao_atendidos, x => `<li>${esc(x)} ${botaoTenho(x)}</li>`)}
+    <div id="confirmacao" class="confirmacao" hidden>
+      <b id="confReq"></b>
+      <p class="ajuda">Conte com suas palavras onde e como você tem isso (ex.: “no estágio da UNINTA eu criava usuários no Active Directory”). Só coloque o que for verdade — isso vai para o currículo.</p>
+      <textarea id="confTexto" rows="3"></textarea>
+      <button id="confSalvar" class="btn">Adicionar ao meu currículo</button>
+      <button id="confCancelar" class="link">cancelar</button>
+    </div>
+    <div id="readaptarBox" class="readaptar" hidden>
+      <span id="readaptarInfo"></span>
+      <button id="readaptar" class="btn">Readaptar com as novas informações</button>
+    </div>
+    <h3>💡 Dicas</h3>
+    ${lista(a.dicas, x => `<li>${esc(x)}</li>`)}`;
+
+  $('analise').querySelectorAll('.tenho').forEach(b => b.onclick = () => abrirConfirmacao(b.dataset.req));
+  $('confCancelar').onclick = () => { $('confirmacao').hidden = true; };
+  $('confSalvar').onclick = salvarConfirmacao;
+  $('readaptar').onclick = () => adaptarVagas([{
+    cargo: atual.resultado.vaga?.cargo || '',
+    texto_completo: atual.resultado.vaga?.texto_transcrito || '',
+  }], true);
+  adicionadas = 0;
+}
+
+// ---------- "Eu tenho isso": completa o currículo base com informações verdadeiras ----------
+const TITULO_CONFIRMADAS = 'INFORMAÇÕES CONFIRMADAS PELO CANDIDATO';
+let reqAtual = '';
+let adicionadas = 0;
+
+function abrirConfirmacao(req) {
+  reqAtual = req;
+  $('confReq').textContent = req;
+  $('confTexto').value = '';
+  $('confirmacao').hidden = false;
+  $('confTexto').focus();
+}
+
+async function salvarConfirmacao() {
+  const desc = $('confTexto').value.trim();
+  if (!desc) return alert('Descreva onde/como você tem isso.');
+  let cv = $('textoCv').value.trimEnd();
+  if (!cv.includes(TITULO_CONFIRMADAS)) cv += `\n\n${TITULO_CONFIRMADAS}`;
+  cv += `\n- ${reqAtual}: ${desc}`;
+  $('textoCv').value = cv;
+  await api('/api/curriculo', { method: 'POST', body: { texto: cv } });
+  $('confirmacao').hidden = true;
+  $('analise').querySelectorAll('.tenho').forEach(b => {
+    if (b.dataset.req === reqAtual) { b.disabled = true; b.textContent = '✔ adicionado'; }
+  });
+  adicionadas++;
+  $('readaptarInfo').textContent = `${adicionadas} informação(ões) adicionada(s) ao seu currículo base.`;
+  $('readaptarBox').hidden = false;
+}
+
+// Escapa o texto e marca as palavras suspeitas apontadas pela verificação.
+function marcar(texto, suspeitos) {
+  if (!suspeitos.size) return esc(texto);
+  return String(texto ?? '').split(/([\p{L}\p{N}]+)/u)
+    .map(p => suspeitos.has(norm(p)) && norm(p) ? `<mark class="suspeito">${esc(p)}</mark>` : esc(p)).join('');
+}
+
+function montarCv(c, s) {
+  const m = t => marcar(t, s);
+  const secao = (titulo, corpo) => corpo ? `<h2>${titulo}</h2>${corpo}` : '';
+  const ul = itens => itens?.length ? `<ul>${itens.map(i => `<li>${m(i)}</li>`).join('')}</ul>` : '';
+
+  const exps = (c.experiencias || []).map(e => `
+    <div class="exp">
+      <div class="exp-topo"><strong>${m(e.cargo)}</strong><span class="periodo">${m(e.periodo)}</span></div>
+      <div class="empresa">${m(e.empresa)}${e.local ? ' · ' + m(e.local) : ''}</div>
+      ${ul((e.itens || []).map(i => i.texto))}
+    </div>`).join('');
+
+  const forms = (c.formacao || []).map(f => `
+    <div class="exp">
+      <div class="exp-topo"><strong>${m(f.curso)}</strong><span class="periodo">${m(f.periodo)}</span></div>
+      ${f.instituicao ? `<div class="empresa">${m(f.instituicao)}</div>` : ''}
+    </div>`).join('');
+
+  return `
+    <h1>${m(nomeBonito(c.nome))}</h1>
+    ${c.objetivo ? `<div class="objetivo">${esc(c.objetivo)}</div>` : ''}
+    <div class="contatos">${(c.contatos || []).map(m).join(' &nbsp;·&nbsp; ')}</div>
+    ${secao('Resumo profissional', c.resumo ? `<p>${m(c.resumo)}</p>` : '')}
+    ${secao('Experiência profissional', exps)}
+    ${secao('Competências', c.competencias?.length ? `<p class="tags">${c.competencias.map(m).join(' • ')}</p>` : '')}
+    ${secao('Formação', forms)}
+    ${secao('Cursos e certificações', ul(c.cursos))}
+    ${secao('Idiomas', ul(c.idiomas))}
+    ${(c.outros || []).map(o => secao(esc(o.titulo), ul(o.itens))).join('')}`;
+}
+
+// ---------- Simulador de triagem ----------
+const DECISOES = {
+  avanca: { classe: 'ok', texto: '✔ Avança para o recrutador' },
+  talvez: { classe: 'atencao', texto: '≈ Talvez avance' },
+  reprovado: { classe: 'erro', texto: '✘ Seria reprovado na triagem' },
+};
+
+function desenharTriagem(t) {
+  const box = $('triagem');
+  if (!t) { box.hidden = true; box.innerHTML = ''; return; }
+  const d = DECISOES[t.decisao] || DECISOES.talvez;
+  const lista = (titulo, itens) => itens?.length ? `<h3>${titulo}</h3><ul>${itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '';
+  box.hidden = false;
+  box.innerHTML = `
+    <div class="triagem-topo">
+      <div><h3>🤖 Simulação da triagem automática</h3>
+        <p class="ajuda">Uma segunda IA avaliou o currículo como o filtro de uma plataforma de recrutamento faria.</p></div>
+      <div class="decisao ${d.classe}"><b>${Math.max(0, Math.min(100, t.nota || 0))}</b><span>${d.texto}</span></div>
+    </div>
+    <p>${esc(t.resumo)}</p>
+    ${lista('👍 Pesa a favor', t.pontos_fortes)}
+    ${lista('👎 Pesa contra', t.pontos_fracos)}
+    ${lista('Requisitos que o currículo não comprova', t.requisitos_nao_comprovados)}
+    ${t.palavras_ausentes?.length ? `<h3>Palavras-chave da vaga que faltam</h3><div class="chips">${t.palavras_ausentes.map(p => `<span class="chip nao">${esc(p)}</span>`).join('')}</div>` : ''}
+    ${lista('💡 Como melhorar (sem inventar)', t.sugestoes)}
+    ${t.perguntas?.length ? `<h3>🎤 Perguntas prováveis na entrevista</h3>
+      ${t.perguntas.map(p => `<details class="pergunta"><summary>${esc(p.pergunta)}</summary><p>${esc(p.dica)}</p></details>`).join('')}` : ''}
+    <p class="ajuda">Simulação feita por IA: serve de treino, não é garantia do resultado real. Se você editar o currículo, simule de novo.</p>`;
+}
+
+$('triar').onclick = async () => {
+  if (!atual) return;
+  const botao = $('triar');
+  botao.disabled = true;
+  botao.textContent = '🤖 Avaliando…';
+  try {
+    // Usa o texto que está na tela, para considerar as edições feitas à mão.
+    atual.triagem = await api('/api/triagem', { method: 'POST', body: { id: atual.id, textoCv: $('cv').innerText } });
+    desenharTriagem(atual.triagem);
+    $('triagem').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = '🤖 Simular triagem por IA';
+  }
+};
+
+// "MARIA DA SILVA SANTOS" -> "Maria da Silva Santos" (o layout tradicional volta para maiúsculas via CSS)
+function nomeBonito(nome) {
+  const n = String(nome || '').trim();
+  if (!n || n !== n.toUpperCase()) return n;
+  return n.toLowerCase().split(/\s+/)
+    .map((p, i) => (i > 0 && ['de', 'da', 'do', 'das', 'dos', 'e'].includes(p)) ? p : p.charAt(0).toUpperCase() + p.slice(1))
+    .join(' ');
+}
+
+// ---------- Layout do currículo (Clássico, Minimalista ou Tradicional) ----------
+const LAYOUTS = ['a', 'b', 'c'];
+let layoutAtual = 'a';
+try { if (LAYOUTS.includes(localStorage.getItem('layoutCv'))) layoutAtual = localStorage.getItem('layoutCv'); } catch {}
+function aplicarLayout(l) {
+  layoutAtual = l;
+  LAYOUTS.forEach(x => $('cv').classList.toggle('layout-' + x, x === l));
+  $('layoutCv').value = l;
+  try { localStorage.setItem('layoutCv', l); } catch {}
+}
+$('layoutCv').onchange = e => aplicarLayout(e.target.value);
+aplicarLayout(layoutAtual);
+
+$('mostrarMarcas').onchange = e => $('cv').classList.toggle('com-marcas', e.target.checked);
+
+// ---------- Exportar ----------
+function nomeArquivo() {
+  const nome = atual?.resultado?.curriculo?.nome || 'curriculo';
+  const cargo = atual?.resultado?.vaga?.cargo || 'vaga';
+  return `Curriculo - ${nome} - ${cargo}`.replace(/[\\/:*?"<>|]/g, '').slice(0, 120);
+}
+
+function imprimir() {
+  const tituloAntigo = document.title;
+  document.title = nomeArquivo(); // vira o nome sugerido do PDF
+  window.print();
+  document.title = tituloAntigo;
+}
+
+// Baixa o PDF pronto, gerado no servidor. Se não der, cai na janela de impressão do navegador.
+$('baixarPdf').onclick = async () => {
+  // Versão online: o próprio navegador gera o PDF ("Salvar como PDF" na tela de impressão/compartilhar)
+  if (await semServidor()) return imprimir();
+  const botao = $('baixarPdf');
+  const copia = $('cv').cloneNode(true);
+  copia.querySelectorAll('mark').forEach(mk => mk.replaceWith(...mk.childNodes));
+  botao.disabled = true;
+  botao.textContent = 'Gerando PDF…';
+  try {
+    const r = await fetch('/api/pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: copia.innerHTML, titulo: nomeArquivo(), layout: layoutAtual }),
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).erro || 'falhou');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(await r.blob());
+    a.download = nomeArquivo() + '.pdf';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch {
+    imprimir();
+  } finally {
+    botao.disabled = false;
+    botao.textContent = 'Salvar PDF';
+  }
+};
+
+$('baixarWord').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(gerarDocx($('cv'), layoutAtual));
+  a.download = nomeArquivo() + '.docx';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+};
+
+// ---------- Histórico ----------
+async function carregarHistorico() {
+  const itens = await api('/api/historico');
+  const ul = $('historico');
+  if (!itens.length) { ul.innerHTML = '<li class="vazio">Nenhuma adaptação ainda.</li>'; return; }
+  ul.innerHTML = itens.map(i => `
+    <li>
+      <button class="abrir" data-id="${i.id}">${esc(i.cargo || 'Vaga')}${i.empresa ? ' — ' + esc(i.empresa) : ''}
+        <small>${new Date(i.data).toLocaleString('pt-BR')}</small></button>
+      <button class="apagar" data-id="${i.id}" title="Apagar">🗑</button>
+    </li>`).join('');
+  ul.querySelectorAll('.abrir').forEach(b => b.onclick = async () => exibir(await api('/api/historico/' + b.dataset.id)));
+  ul.querySelectorAll('.apagar').forEach(b => b.onclick = async () => {
+    if (!confirm('Apagar esta adaptação do histórico?')) return;
+    await api('/api/historico/' + b.dataset.id, { method: 'DELETE' });
+    carregarHistorico();
+  });
+}
+
+iniciar().catch(e => alert('Erro ao iniciar: ' + e.message));
+
+</script>
+  <script>/* candidaturas.js */
+// Controle de candidaturas: onde enviei, em que pé está e quando cobrar retorno.
+const SITUACOES = {
+  enviado: { nome: 'Enviado', cor: 'azul' },
+  analise: { nome: 'Em análise', cor: 'azul' },
+  entrevista: { nome: 'Entrevista', cor: 'roxo' },
+  teste: { nome: 'Teste / prova', cor: 'roxo' },
+  aprovado: { nome: 'Aprovado 🎉', cor: 'verde' },
+  reprovado: { nome: 'Não passou', cor: 'cinza' },
+  sem_resposta: { nome: 'Sem resposta', cor: 'cinza' },
+};
+const EM_ABERTO = ['enviado', 'analise', 'entrevista', 'teste'];
+const DIAS_PARA_COBRAR = 7;
+
+let candidaturas = [];
+let filtro = '';
+let editando = null;
+
+// Datas sempre no fuso do computador (toISOString usaria UTC e "viraria o dia" às 21h no Brasil)
+const isoLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const hojeISO = () => isoLocal(new Date());
+const somarDias = (iso, dias) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + dias); return isoLocal(d); };
+const dataBR = iso => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '';
+const diasDesde = iso => Math.round((new Date(hojeISO() + 'T12:00:00') - new Date(iso.slice(0, 10) + 'T12:00:00')) / 86400000);
+const precisaCobrar = c => EM_ABERTO.includes(c.status) && c.proximoContato && c.proximoContato <= hojeISO();
+
+// ---------- Abas do app ----------
+document.querySelectorAll('.aba-app').forEach(b => b.onclick = () => mostrarView(b.dataset.view));
+function mostrarView(id) {
+  document.querySelectorAll('.aba-app').forEach(b => b.classList.toggle('ativa', b.dataset.view === id));
+  $('viewAdaptar').hidden = id !== 'viewAdaptar';
+  $('viewCandidaturas').hidden = id !== 'viewCandidaturas';
+  if (id === 'viewCandidaturas') desenharCandidaturas();
+}
+
+// ---------- Dados ----------
+async function carregarCandidaturas() {
+  candidaturas = await api('/api/candidaturas');
+  const n = candidaturas.filter(precisaCobrar).length;
+  $('badgeCobrar').hidden = !n;
+  $('badgeCobrar').textContent = n;
+  if (!$('viewCandidaturas').hidden) desenharCandidaturas();
+}
+
+async function salvarCampo(id, dados) {
+  await api('/api/candidaturas/' + id, { method: 'PUT', body: dados });
+  await carregarCandidaturas();
+}
+
+// ---------- Lista ----------
+function desenharCandidaturas() {
+  // contadores por situação (clicar filtra)
+  const cont = {};
+  candidaturas.forEach(c => { cont[c.status] = (cont[c.status] || 0) + 1; });
+  $('contadores').innerHTML = `<button class="contador ${filtro === '' ? 'ativo' : ''}" data-f="">Todas <b>${candidaturas.length}</b></button>`
+    + Object.entries(SITUACOES).filter(([k]) => cont[k]).map(([k, s]) =>
+      `<button class="contador ${s.cor} ${filtro === k ? 'ativo' : ''}" data-f="${k}">${s.nome} <b>${cont[k]}</b></button>`).join('');
+  $('contadores').querySelectorAll('.contador').forEach(b => b.onclick = () => { filtro = b.dataset.f; desenharCandidaturas(); });
+
+  const cobrar = candidaturas.filter(precisaCobrar);
+  $('avisoCobrar').innerHTML = cobrar.length
+    ? `<div class="aviso atencao">⏰ <b>${cobrar.length} candidatura(s) esperando retorno há um tempo.</b> Uma mensagem educada perguntando sobre o processo mostra interesse e costuma ajudar. Use o botão "Mensagem de cobrança".</div>`
+    : '';
+
+  const lista = candidaturas
+    .filter(c => !filtro || c.status === filtro)
+    .sort((a, b) => (precisaCobrar(b) - precisaCobrar(a))
+      || (EM_ABERTO.includes(b.status) - EM_ABERTO.includes(a.status))
+      || (b.dataEnvio || '').localeCompare(a.dataEnvio || ''));
+
+  if (!candidaturas.length) {
+    $('listaCand').innerHTML = `<div class="vazio-grande"><p>Nenhuma candidatura ainda.<br><small>Depois de adaptar um currículo, clique em "📨 Marquei como enviada", ou use "+ Nova candidatura".</small></p></div>`;
+    return;
+  }
+  $('listaCand').innerHTML = lista.map(cartaoCandidatura).join('') || '<p class="vazio">Nenhuma candidatura nessa situação.</p>';
+
+  $('listaCand').querySelectorAll('[data-acao]').forEach(el => {
+    const c = candidaturas.find(x => x.id === el.closest('.cand').dataset.id);
+    const acao = el.dataset.acao;
+    if (acao === 'status') el.onchange = () => {
+      const dados = { status: el.value };
+      // avançou de etapa: lembra de cobrar de novo em 7 dias; terminou: não precisa mais lembrar
+      dados.proximoContato = EM_ABERTO.includes(el.value) ? somarDias(hojeISO(), DIAS_PARA_COBRAR) : '';
+      salvarCampo(c.id, dados);
+    };
+    else el.onclick = () => ({
+      cobrar: () => mostrarMensagem(c, el),
+      adiar: () => salvarCampo(c.id, { proximoContato: somarDias(hojeISO(), DIAS_PARA_COBRAR) }),
+      editar: () => abrirForm(c),
+      curriculo: () => abrirCurriculo(c.adaptacaoId),
+      apagar: async () => {
+        if (!confirm(`Apagar a candidatura "${c.cargo || c.empresa}"?`)) return;
+        await api('/api/candidaturas/' + c.id, { method: 'DELETE' });
+        carregarCandidaturas();
+      },
+    })[acao]?.();
+  });
+}
+
+function cartaoCandidatura(c) {
+  const s = SITUACOES[c.status] || SITUACOES.enviado;
+  const dias = c.dataEnvio ? diasDesde(c.dataEnvio) : null;
+  const linhaTempo = (c.historico || []).map(h => `${SITUACOES[h.status]?.nome || h.status} ${dataBR(h.data)}`).join(' → ');
+  const aberto = EM_ABERTO.includes(c.status);
+  return `
+  <article class="cand cartao ${aberto ? '' : 'encerrada'} ${precisaCobrar(c) ? 'cobrar' : ''}" data-id="${c.id}">
+    <div class="cand-cabeca">
+      <div>
+        <h3>${esc(c.cargo || 'Vaga sem cargo')}${c.empresa ? ` <span>· ${esc(c.empresa)}</span>` : ''}</h3>
+        <p class="cand-meta">
+          ${c.canal ? esc(c.canal) + ' · ' : ''}enviado em ${dataBR(c.dataEnvio)}${dias !== null ? ` (${dias === 0 ? 'hoje' : dias === 1 ? 'ontem' : `há ${dias} dias`})` : ''}
+          ${c.contato ? ` · contato: ${esc(c.contato)}` : ''}
+          ${c.link ? ` · <a href="${esc(/^https?:\/\//.test(c.link) ? c.link : 'https://' + c.link)}" target="_blank" rel="noopener">ver vaga</a>` : ''}
+        </p>
+      </div>
+      <select class="sel-status ${s.cor}" data-acao="status">
+        ${Object.entries(SITUACOES).map(([k, v]) => `<option value="${k}" ${k === c.status ? 'selected' : ''}>${v.nome}</option>`).join('')}
+      </select>
+    </div>
+    ${precisaCobrar(c) ? `<p class="cand-alerta">⏰ Hora de cobrar um retorno</p>`
+      : aberto && c.proximoContato ? `<p class="cand-lembrete">Lembrete para cobrar em ${dataBR(c.proximoContato)}</p>` : ''}
+    ${c.obs ? `<p class="cand-obs">${esc(c.obs)}</p>` : ''}
+    ${linhaTempo ? `<p class="cand-tempo">${linhaTempo}</p>` : ''}
+    <div class="cand-acoes">
+      ${aberto ? `<button class="link" data-acao="cobrar">💬 Mensagem de cobrança</button>` : ''}
+      ${precisaCobrar(c) ? `<button class="link" data-acao="adiar">Já cobrei, lembrar em 7 dias</button>` : ''}
+      ${c.adaptacaoId ? `<button class="link" data-acao="curriculo">📄 Ver currículo enviado</button>` : ''}
+      <button class="link" data-acao="editar">Editar</button>
+      <button class="link perigo" data-acao="apagar">Apagar</button>
+    </div>
+    <div class="cand-msg" hidden></div>
+  </article>`;
+}
+
+// ---------- Mensagem de cobrança (modelo pronto, sem IA) ----------
+function meuNome() {
+  const primeira = ($('textoCv').value || '').split('\n').find(l => l.trim()) || '';
+  return primeira.trim().toLowerCase().split(/\s+/).slice(0, 2)
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+}
+
+function mensagemCobranca(c) {
+  const vaga = `a vaga de ${c.cargo || 'emprego'}${c.empresa ? ` na empresa ${c.empresa}` : ''}`;
+  const nome = meuNome();
+  if (c.status === 'entrevista' || c.status === 'teste') {
+    const etapa = c.status === 'entrevista' ? 'da entrevista' : 'da etapa de teste';
+    return `Olá, tudo bem? Aqui é ${nome || '(seu nome)'}. Participei ${etapa} para ${vaga} e gostaria de saber se já existe um retorno sobre o processo. Agradeço pela oportunidade e continuo à disposição!`;
+  }
+  return `Olá, tudo bem? Me chamo ${nome || '(seu nome)'} e me candidatei para ${vaga} no dia ${dataBR(c.dataEnvio)}. Gostaria de saber se há alguma novidade sobre o processo seletivo. Continuo muito interessado e à disposição. Obrigado!`;
+}
+
+function mostrarMensagem(c, botao) {
+  const box = botao.closest('.cand').querySelector('.cand-msg');
+  if (!box.hidden) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<textarea rows="4">${esc(mensagemCobranca(c))}</textarea>
+    <div class="barra"><button class="btn">Copiar mensagem</button><span class="ajuda">Ajuste o texto se quiser antes de copiar.</span></div>`;
+  box.querySelector('button').onclick = async () => {
+    const texto = box.querySelector('textarea').value;
+    try { await navigator.clipboard.writeText(texto); } catch { box.querySelector('textarea').select(); document.execCommand('copy'); }
+    box.querySelector('button').textContent = '✔ Copiada';
+  };
+}
+
+async function abrirCurriculo(id) {
+  try {
+    const reg = await api('/api/historico/' + id);
+    mostrarView('viewAdaptar');
+    exibir(reg);
+  } catch { alert('Esse currículo não está mais no histórico.'); }
+}
+
+// ---------- Formulário ----------
+const form = $('formCand');
+form.elements.status.innerHTML = Object.entries(SITUACOES).map(([k, v]) => `<option value="${k}">${v.nome}</option>`).join('');
+
+function abrirForm(c = null, prefill = {}) {
+  editando = c;
+  $('formCandTitulo').textContent = c ? 'Editar candidatura' : 'Nova candidatura';
+  const dados = c || { dataEnvio: hojeISO(), status: 'enviado', proximoContato: somarDias(hojeISO(), DIAS_PARA_COBRAR), canal: 'Gupy', ...prefill };
+  for (const el of form.elements) if (el.name) el.value = dados[el.name] ?? '';
+  form.hidden = false;
+  form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  form.elements.cargo.focus();
+}
+
+$('novaCand').onclick = () => abrirForm();
+$('cancelarCand').onclick = () => { form.hidden = true; };
+form.onsubmit = async ev => {
+  ev.preventDefault();
+  const dados = Object.fromEntries(new FormData(form));
+  try {
+    if (editando) await api('/api/candidaturas/' + editando.id, { method: 'PUT', body: dados });
+    else await api('/api/candidaturas', { method: 'POST', body: dados });
+    form.hidden = true;
+    await carregarCandidaturas();
+  } catch (e) { alert(e.message); }
+};
+
+// ---------- "Marquei como enviada" (a partir de uma adaptação) ----------
+$('marcarEnviada').onclick = () => {
+  if (!atual) return;
+  $('envioBox').hidden = !$('envioBox').hidden;
+  if (!$('envioBox').hidden) $('envioBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+$('envioSalvar').onclick = async () => {
+  const v = atual.resultado.vaga || {};
+  try {
+    await api('/api/candidaturas', {
+      method: 'POST',
+      body: {
+        cargo: v.cargo || '', empresa: v.empresa || '', canal: $('envioCanal').value, contato: $('envioContato').value,
+        adaptacaoId: atual.id, dataEnvio: hojeISO(), status: 'enviado', proximoContato: somarDias(hojeISO(), DIAS_PARA_COBRAR),
+      },
+    });
+    $('envioSalvar').disabled = true;
+    $('envioSalvar').textContent = '✔ Adicionada às candidaturas';
+    $('envioOk').hidden = false;
+    carregarCandidaturas();
+  } catch (e) { alert(e.message); }
+};
+$('irCand').onclick = () => mostrarView('viewCandidaturas');
+
+// Ao abrir outra adaptação, a caixa de envio volta ao estado inicial.
+const exibirSemEnvio = exibir;
+exibir = reg => {
+  exibirSemEnvio(reg);
+  $('envioBox').hidden = true;
+  $('envioSalvar').disabled = false;
+  $('envioSalvar').textContent = 'Adicionar às candidaturas';
+  $('envioOk').hidden = true;
+  $('envioContato').value = '';
+};
+
+carregarCandidaturas().catch(() => {});
+
+</script>
+  <script>/* montar.js */
+// Montar currículo do zero: passo a passo guiado; a IA transforma as respostas num currículo profissional.
+const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const COMPORTAMENTAIS = ['Responsabilidade', 'Pontualidade', 'Trabalho em equipe', 'Boa comunicação', 'Vontade de aprender',
+  'Organização', 'Proatividade', 'Atendimento ao público', 'Resolução de problemas', 'Trabalho sob pressão',
+  'Liderança', 'Criatividade'];
+const NIVEIS = ['Básico', 'Intermediário', 'Avançado', 'Fluente', 'Nativo'];
+const SITUACOES_CURSO = ['Concluído', 'Cursando', 'Incompleto', 'Trancado'];
+const CNH = ['Não tenho', 'A', 'B', 'AB', 'C', 'D', 'E'];
+
+const vazio = {
+  experiencia: () => ({ cargo: '', empresa: '', cidade: '', inicio: '', fim: '', atual: false, atividades: '', resultados: '' }),
+  formacao: () => ({ curso: '', instituicao: '', situacao: 'Concluído', inicio: '', fim: '' }),
+  curso: () => ({ nome: '', instituicao: '', ano: '', horas: '' }),
+  idioma: () => ({ idioma: '', nivel: 'Básico' }),
+};
+const novoRascunho = () => ({
+  pessoal: { nome: '', cidade: '', uf: '', telefone: '', email: '', linkedin: '', area: '', cnh: 'Não tenho', disponibilidade: '' },
+  semExperiencia: false, experiencias: [vazio.experiencia()], formacao: [vazio.formacao()], cursos: [],
+  ferramentas: '', idiomas: [], comportamentais: [], outraComp: '', projetos: '', voluntariado: '', outras: '',
+});
+
+let R = novoRascunho();
+let passo = 0;
+try { const s = JSON.parse(localStorage.getItem('rascunhoCurriculo')); if (s?.pessoal) R = { ...novoRascunho(), ...s }; } catch {}
+const guardar = () => { try { localStorage.setItem('rascunhoCurriculo', JSON.stringify(R)); } catch {} };
+
+// ---------- leitura/escrita por caminho ("experiencias.0.cargo") ----------
+const ler = caminho => caminho.split('.').reduce((o, k) => o?.[k], R);
+function escrever(caminho, valor) {
+  const ks = caminho.split('.');
+  const ultimo = ks.pop();
+  ks.reduce((o, k) => o[k], R)[ultimo] = valor;
+  guardar();
+}
+
+// ---------- componentes ----------
+const campo = (rotulo, caminho, o = {}) => `
+  <label class="m-campo ${o.largo ? 'largo' : ''}">${rotulo}${o.obrig ? ' <i>*</i>' : ''}
+    ${o.area
+      ? `<textarea data-c="${caminho}" rows="${o.linhas || 3}" placeholder="${esc(o.ph || '')}">${esc(ler(caminho) || '')}</textarea>`
+      : `<input data-c="${caminho}" type="${o.tipo || 'text'}" value="${esc(ler(caminho) || '')}" placeholder="${esc(o.ph || '')}">`}
+    ${o.dica ? `<small>${o.dica}</small>` : ''}
+  </label>`;
+const escolha = (rotulo, caminho, opcoes) => `
+  <label class="m-campo">${rotulo}
+    <select data-c="${caminho}">${opcoes.map(op => `<option ${ler(caminho) === op ? 'selected' : ''}>${op}</option>`).join('')}</select>
+  </label>`;
+const bloco = (titulo, i, lista, conteudo) => `
+  <div class="m-bloco"><div class="m-bloco-topo"><b>${titulo} ${i + 1}</b>
+    <button type="button" class="link perigo" data-remover="${lista}.${i}">remover</button></div>
+    <div class="m-grade">${conteudo}</div></div>`;
+
+const PASSOS = [
+  {
+    titulo: 'Seus dados',
+    texto: 'Comece pelo básico. Esses dados vão no topo do currículo.',
+    html: () => `<div class="m-grade">
+      ${campo('Nome completo', 'pessoal.nome', { obrig: true, largo: true })}
+      ${campo('Cidade', 'pessoal.cidade', { obrig: true, ph: 'Ex.: Sobral' })}
+      ${campo('Estado (UF)', 'pessoal.uf', { ph: 'Ex.: CE' })}
+      ${campo('Telefone / WhatsApp', 'pessoal.telefone', { obrig: true, ph: '(88) 9 9999-9999' })}
+      ${campo('E-mail', 'pessoal.email', { tipo: 'email', ph: 'seunome@gmail.com', dica: 'Use um e-mail simples, com seu nome.' })}
+      ${campo('LinkedIn', 'pessoal.linkedin', { ph: 'opcional' })}
+      ${campo('Que tipo de vaga você procura?', 'pessoal.area', { obrig: true, largo: true, ph: 'Ex.: atendimento, vendas, auxiliar administrativo, suporte de TI' })}
+      ${escolha('CNH', 'pessoal.cnh', CNH)}
+      ${campo('Disponibilidade de horário', 'pessoal.disponibilidade', { ph: 'Ex.: manhã e tarde, escala 6x1' })}
+    </div>`,
+    validar: () => (!R.pessoal.nome.trim() || !R.pessoal.cidade.trim() || !R.pessoal.telefone.trim() || !R.pessoal.area.trim())
+      && 'Preencha nome, cidade, telefone e o tipo de vaga que você procura.',
+  },
+  {
+    titulo: 'Experiência',
+    texto: 'Inclua empregos, estágios, jovem aprendiz, bicos e trabalhos por conta própria. Escreva do seu jeito, a IA deixa profissional, mas só usa o que você escrever.',
+    html: () => `
+      <label class="m-check"><input type="checkbox" data-c="semExperiencia" ${R.semExperiencia ? 'checked' : ''}> Ainda não tive nenhum trabalho</label>
+      ${R.semExperiencia ? '<p class="ajuda">Sem problema! Capriche na formação, nos cursos e nos projetos. Para primeiro emprego, eles contam muito.</p>' : `
+      ${R.experiencias.map((x, i) => bloco('Experiência', i, 'experiencias', `
+        ${campo('Cargo / função', `experiencias.${i}.cargo`, { obrig: true, ph: 'Ex.: Atendente, Auxiliar de loja' })}
+        ${campo('Empresa', `experiencias.${i}.empresa`, { obrig: true, ph: 'Ou "Autônomo"' })}
+        ${campo('Cidade', `experiencias.${i}.cidade`)}
+        ${campo('Começou em', `experiencias.${i}.inicio`, { tipo: 'month' })}
+        ${x.atual ? '<div class="m-campo"></div>' : campo('Saiu em', `experiencias.${i}.fim`, { tipo: 'month' })}
+        <label class="m-check largo"><input type="checkbox" data-c="experiencias.${i}.atual" ${x.atual ? 'checked' : ''}> Trabalho aqui atualmente</label>
+        ${campo('O que você fazia no dia a dia?', `experiencias.${i}.atividades`, { area: true, largo: true, linhas: 4, ph: 'Ex.: atendia clientes no balcão, mexia no caixa, arrumava as prateleiras e recebia mercadoria' })}
+        ${campo('Resultados ou conquistas (se tiver)', `experiencias.${i}.resultados`, { area: true, largo: true, linhas: 2, ph: 'Números, metas batidas, elogios, promoções. Ex.: atendia uns 50 clientes por dia; fui funcionário do mês', dica: 'Números de verdade deixam o currículo muito mais forte.' })}
+      `)).join('')}
+      <button type="button" class="btn secundario" data-adicionar="experiencias">+ Adicionar outra experiência</button>`}`,
+    validar: () => !R.semExperiencia && R.experiencias.some(x => !x.cargo.trim() || !x.empresa.trim())
+      && 'Preencha cargo e empresa de cada experiência (ou remova as que estiverem vazias).',
+  },
+  {
+    titulo: 'Formação',
+    texto: 'Coloque sua escolaridade mais alta e cursos técnicos. Se não tem faculdade, coloque o ensino médio.',
+    html: () => `
+      ${R.formacao.map((x, i) => bloco('Formação', i, 'formacao', `
+        ${campo('Curso', `formacao.${i}.curso`, { obrig: true, ph: 'Ex.: Ensino Médio, Técnico em Administração' })}
+        ${campo('Escola / instituição', `formacao.${i}.instituicao`, { obrig: true })}
+        ${escolha('Situação', `formacao.${i}.situacao`, SITUACOES_CURSO)}
+        ${campo('Ano de início', `formacao.${i}.inicio`, { ph: 'Ex.: 2021' })}
+        ${campo(x.situacao === 'Cursando' ? 'Previsão de conclusão' : 'Ano de conclusão', `formacao.${i}.fim`, { ph: 'Ex.: 2024' })}
+      `)).join('')}
+      <button type="button" class="btn secundario" data-adicionar="formacao">+ Adicionar outra formação</button>`,
+    validar: () => (!R.formacao.length || R.formacao.some(x => !x.curso.trim() || !x.instituicao.trim()))
+      && 'Coloque pelo menos uma formação, com curso e escola.',
+  },
+  {
+    titulo: 'Cursos e certificados',
+    texto: 'Cursos livres, online, gratuitos, do SENAI, SEBRAE, Fundação Bradesco... Tudo que tiver certificado vale. Pode pular se não tiver.',
+    html: () => `
+      ${R.cursos.map((x, i) => bloco('Curso', i, 'cursos', `
+        ${campo('Nome do curso', `cursos.${i}.nome`, { largo: true })}
+        ${campo('Instituição', `cursos.${i}.instituicao`)}
+        ${campo('Ano', `cursos.${i}.ano`)}
+        ${campo('Carga horária', `cursos.${i}.horas`, { ph: 'Ex.: 40h' })}
+      `)).join('')}
+      <button type="button" class="btn secundario" data-adicionar="cursos">+ Adicionar curso</button>`,
+  },
+  {
+    titulo: 'Habilidades',
+    texto: 'Marque só o que for verdade. Na entrevista, podem pedir um exemplo de cada uma.',
+    html: () => `
+      ${campo('Programas, sistemas e conhecimentos', 'ferramentas', { area: true, largo: true, linhas: 2, ph: 'Ex.: Word, Excel básico, WhatsApp Business, sistema de caixa, Canva, manutenção de computadores' })}
+      <div class="m-sub">Idiomas</div>
+      ${R.idiomas.map((x, i) => `<div class="m-linha">
+        ${campo('Idioma', `idiomas.${i}.idioma`, { ph: 'Ex.: Inglês' })}${escolha('Nível', `idiomas.${i}.nivel`, NIVEIS)}
+        <button type="button" class="link perigo" data-remover="idiomas.${i}">remover</button></div>`).join('')}
+      <button type="button" class="btn secundario" data-adicionar="idiomas">+ Adicionar idioma</button>
+      <div class="m-sub">Competências comportamentais</div>
+      <div class="m-chips">${COMPORTAMENTAIS.map(c => `<label class="m-chip ${R.comportamentais.includes(c) ? 'on' : ''}">
+        <input type="checkbox" data-comp="${c}" ${R.comportamentais.includes(c) ? 'checked' : ''}>${c}</label>`).join('')}</div>
+      ${campo('Outra que não está na lista', 'outraComp', { ph: 'opcional' })}`,
+  },
+  {
+    titulo: 'Extras',
+    texto: 'Isso faz diferença, principalmente para quem está começando. Pode deixar em branco o que não tiver.',
+    html: () => `<div class="m-grade">
+      ${campo('Projetos (escola, faculdade, pessoais)', 'projetos', { area: true, largo: true, ph: 'Ex.: fiz um site para a loja da minha tia; organizei a feira de ciências da escola' })}
+      ${campo('Trabalho voluntário', 'voluntariado', { area: true, largo: true, ph: 'Ex.: ajudo na igreja organizando eventos; voluntário na campanha do agasalho' })}
+      ${campo('Outras informações importantes', 'outras', { area: true, largo: true, ph: 'Ex.: tenho moto própria; disponibilidade para viagens' })}
+    </div>`,
+  },
+  {
+    titulo: 'Revisar e gerar',
+    texto: 'Confira suas respostas. A IA vai deixar tudo com linguagem profissional e organizado, sem inventar nada.',
+    html: () => `<pre class="m-revisao">${esc(paraTexto(R))}</pre>`,
+  },
+];
+
+// ---------- respostas em texto (é isso que a IA recebe e o que a verificação usa como "verdade") ----------
+const mes = v => { if (!v) return ''; const [a, m] = v.split('-'); return `${MESES[+m - 1]}/${a}`; };
+function paraTexto(r) {
+  const p = r.pessoal;
+  const l = [];
+  const add = (rot, v) => { if (String(v || '').trim()) l.push(`${rot}: ${String(v).trim()}`); };
+  add('NOME', p.nome); add('CIDADE', [p.cidade, p.uf].filter(Boolean).join(' - ')); add('TELEFONE', p.telefone);
+  add('E-MAIL', p.email); add('LINKEDIN', p.linkedin); add('VAGA QUE PROCURA', p.area);
+  if (p.cnh && p.cnh !== 'Não tenho') add('CNH', 'categoria ' + p.cnh);
+  add('DISPONIBILIDADE', p.disponibilidade);
+  l.push('', 'EXPERIÊNCIAS:');
+  if (r.semExperiencia || !r.experiencias.length) l.push('Ainda não teve nenhum trabalho.');
+  else r.experiencias.forEach((x, i) => {
+    const periodo = [mes(x.inicio), x.atual ? 'atual' : mes(x.fim)].filter(Boolean).join(' – ');
+    l.push(`${i + 1}) Cargo: ${x.cargo} | Empresa: ${x.empresa}${x.cidade ? ' | Cidade: ' + x.cidade : ''}${periodo ? ' | Período: ' + periodo : ''}`);
+    if (x.atividades.trim()) l.push(`   O que fazia: ${x.atividades.trim()}`);
+    if (x.resultados.trim()) l.push(`   Resultados e conquistas: ${x.resultados.trim()}`);
+  });
+  l.push('', 'FORMAÇÃO:');
+  r.formacao.forEach(x => l.push(`- ${x.curso} | ${x.instituicao} | ${x.situacao}${x.inicio || x.fim ? ' | ' + [x.inicio, x.fim].filter(Boolean).join(' – ') : ''}`));
+  if (r.cursos.some(x => x.nome.trim())) {
+    l.push('', 'CURSOS E CERTIFICADOS:');
+    r.cursos.filter(x => x.nome.trim()).forEach(x => l.push(`- ${[x.nome, x.instituicao, x.ano, x.horas && 'carga horária ' + x.horas].filter(Boolean).join(' | ')}`));
+  }
+  l.push('');
+  add('PROGRAMAS, SISTEMAS E CONHECIMENTOS', r.ferramentas);
+  add('IDIOMAS', r.idiomas.filter(x => x.idioma.trim()).map(x => `${x.idioma} – ${x.nivel}`).join('; '));
+  add('COMPETÊNCIAS COMPORTAMENTAIS', [...r.comportamentais, r.outraComp].filter(s => s && s.trim()).join('; '));
+  add('PROJETOS', r.projetos); add('TRABALHO VOLUNTÁRIO', r.voluntariado); add('OUTRAS INFORMAÇÕES', r.outras);
+  return l.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// ---------- janela do passo a passo ----------
+function desenharPasso() {
+  const P = PASSOS[passo];
+  $('mIndicador').innerHTML = PASSOS.map((x, i) =>
+    `<button type="button" class="m-ind ${i === passo ? 'atual' : i < passo ? 'feito' : ''}" data-ir="${i}" title="${x.titulo}"><span>${i + 1}</span>${x.titulo}</button>`).join('');
+  $('mConteudo').innerHTML = `<h2>${P.titulo}</h2><p class="ajuda">${P.texto}</p>${P.html()}<p id="mErro" class="m-erro"></p>`;
+  $('mVoltar').hidden = passo === 0;
+  $('mProximo').textContent = passo === PASSOS.length - 1 ? '✨ Gerar meu currículo' : 'Próximo →';
+  $('mConteudo').scrollTop = 0;
+}
+
+$('mConteudo').addEventListener('input', e => {
+  const c = e.target.dataset.c;
+  if (c) escrever(c, e.target.type === 'checkbox' ? e.target.checked : e.target.value);
+});
+$('mConteudo').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.comp) {
+    R.comportamentais = t.checked ? [...R.comportamentais, t.dataset.comp] : R.comportamentais.filter(x => x !== t.dataset.comp);
+    guardar();
+    t.closest('.m-chip').classList.toggle('on', t.checked);
+  }
+  // campos que mudam o formulário: redesenha mantendo o que já foi digitado
+  if (t.type === 'checkbox' && t.dataset.c || /\.situacao$/.test(t.dataset.c || '')) desenharPasso();
+});
+$('mConteudo').addEventListener('click', e => {
+  const add = e.target.dataset.adicionar, rem = e.target.dataset.remover;
+  if (add) { R[add].push(vazio[{ experiencias: 'experiencia', formacao: 'formacao', cursos: 'curso', idiomas: 'idioma' }[add]]()); guardar(); desenharPasso(); }
+  if (rem) { const [lista, i] = rem.split('.'); R[lista].splice(+i, 1); guardar(); desenharPasso(); }
+});
+$('mIndicador').addEventListener('click', e => {
+  const b = e.target.closest('[data-ir]');
+  if (b && +b.dataset.ir < passo) { passo = +b.dataset.ir; desenharPasso(); }
+});
+
+$('mVoltar').onclick = () => { passo--; desenharPasso(); };
+$('mProximo').onclick = async () => {
+  const erro = PASSOS[passo].validar?.();
+  if (erro) { $('mErro').textContent = erro; return; }
+  if (passo < PASSOS.length - 1) { passo++; desenharPasso(); return; }
+  // Gerar
+  const botao = $('mProximo');
+  botao.disabled = true;
+  botao.textContent = 'Montando seu currículo… (uns 30 segundos)';
+  try {
+    const reg = await api('/api/montar', { method: 'POST', body: { respostas: paraTexto(R) } });
+    fecharMontador();
+    exibir(reg);
+    carregarHistorico();
+  } catch (e) {
+    $('mErro').textContent = e.message;
+  } finally {
+    botao.disabled = false;
+    botao.textContent = '✨ Gerar meu currículo';
+  }
+};
+
+function abrirMontador(irPara = 0) {
+  passo = irPara;
+  $('montador').hidden = false;
+  document.body.style.overflow = 'hidden';
+  desenharPasso();
+}
+function fecharMontador() {
+  $('montador').hidden = true;
+  document.body.style.overflow = '';
+}
+$('abrirMontador').onclick = () => abrirMontador();
+$('mFechar').onclick = fecharMontador;
+$('mRecomecar').onclick = () => {
+  if (!confirm('Apagar todas as respostas e começar de novo?')) return;
+  R = novoRascunho(); guardar(); abrirMontador(0);
+};
+
+// ---------- resultado: aparece no lugar da análise da vaga ----------
+function desenharBase(reg) {
+  const r = reg.resultado;
+  const lista = itens => itens?.length ? `<ul>${itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '';
+  $('analise').innerHTML = `
+    <h3>✨ Seu currículo está pronto</h3>
+    <p class="ajuda">Revise e edite direto no currículo abaixo se quiser. Escolha o layout, baixe em PDF ou Word e, se gostar,
+      use como seu currículo base: aí é só mandar as fotos das vagas para adaptar.</p>
+    <div class="barra">
+      <button id="usarBase" class="btn">📌 Usar como meu currículo base</button>
+      <button id="editarRespostas" class="btn secundario">✏️ Voltar e editar respostas</button>
+    </div>
+    ${r.perguntas?.length ? `<h3>🔎 Responda para deixar ainda mais forte</h3>
+      <p class="ajuda">Se souber alguma resposta, clique em "Voltar e editar respostas", acrescente e gere de novo.</p>${lista(r.perguntas)}` : ''}
+    ${r.dicas?.length ? `<h3>💡 Dicas</h3>${lista(r.dicas)}` : ''}`;
+  $('usarBase').onclick = async () => {
+    if ($('textoCv').value.trim() && !confirm('Isso substitui o currículo base que está no passo 2. Continuar?')) return;
+    $('textoCv').value = $('cv').innerText.replace(/\n{3,}/g, '\n\n').trim();
+    await api('/api/curriculo', { method: 'POST', body: { texto: $('textoCv').value } });
+    $('cvStatus').textContent = '✔ Currículo salvo';
+    $('usarBase').textContent = '✔ Agora é o seu currículo base';
+    $('usarBase').disabled = true;
+  };
+  $('editarRespostas').onclick = () => abrirMontador(PASSOS.length - 1);
+}
+
+</script>
 </body>
 </html>
