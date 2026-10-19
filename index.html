@@ -512,6 +512,9 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 @media (max-width: 700px) { .cv { padding: 20px 16px; min-height: 0; } }
 /* Estrutura comum aos 3 layouts */
 .cv h1 { margin: 0; }
+/* Foto 3x4 no canto; as seções começam abaixo dela */
+.cv .foto-cv { float: right; width: 30mm; height: 40mm; object-fit: cover; margin: 0 0 6px 14px; border-radius: 8px; }
+.cv h2 { clear: both; }
 .cv p { margin: 0 0 4px; }
 .cv .exp { margin-bottom: 7px; break-inside: avoid; }
 .cv .exp-topo { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -530,6 +533,9 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 .cv.layout-a .periodo { color: #555; font-style: italic; }
 .cv.layout-a .empresa { color: #444; font-size: 10pt; }
 .cv.layout-a ul { list-style: "–  "; padding-left: 16px; }
+/* Com foto, a linha sai de baixo dos contatos e passa embaixo da foto (senão a foto fica "pendurada" na linha) */
+.cv.layout-a:has(> .foto-cv) .contatos { border-bottom: 0; }
+.cv.layout-a:has(> .foto-cv) > h2:first-of-type { border-top: 1px solid #222; padding-top: 10px; }
 
 /* B: Minimalista — títulos na coluna da esquerda, sem cor */
 .cv.layout-b { font-family: "Segoe UI", Arial, sans-serif; color: #1c1c1c; font-size: 10pt;
@@ -544,7 +550,14 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 .cv.layout-b .exp-topo strong { font-weight: 600; }
 .cv.layout-b .periodo { color: #777; font-size: 9pt; }
 .cv.layout-b .empresa { color: #666; font-size: 9pt; }
-@media (max-width: 700px) { .cv.layout-b { display: block; } }
+/* Foto redonda na coluna da esquerda, ao lado do nome */
+.cv.layout-b > .foto-cv { float: none; grid-column: 1; grid-row: 1 / span 2; align-self: center; width: 26mm; height: 26mm; border-radius: 50%; margin: 0; }
+.cv.layout-b:has(> .objetivo) > .foto-cv { grid-row: 1 / span 3; }
+.cv.layout-b:has(> .foto-cv) > h1, .cv.layout-b:has(> .foto-cv) > .objetivo, .cv.layout-b:has(> .foto-cv) > .contatos { grid-column: 2; }
+@media (max-width: 700px) {
+  .cv.layout-b { display: block; }
+  .cv.layout-b > .foto-cv { float: right; width: 22mm; height: 22mm; margin: 0 0 6px 10px; }
+}
 
 /* C: Tradicional — cabeçalho centralizado, faixas cinza nos títulos */
 .cv.layout-c { font-family: Arial, Helvetica, sans-serif; color: #111; font-size: 10pt; }
@@ -552,6 +565,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 .cv.layout-c h1 { font-size: 17pt; text-transform: uppercase; letter-spacing: .5px; }
 .cv.layout-c .objetivo { font-size: 10.5pt; margin: 3px 0 2px; }
 .cv.layout-c .contatos { font-size: 9pt; margin-bottom: 6px; }
+.cv.layout-c .foto-cv { border-radius: 2px; border: 1px solid #999; }
 .cv.layout-c h2 { font-size: 10.5pt; text-transform: uppercase; background: #ececec; padding: 3px 8px; margin: 12px 0 5px; }
 .cv.layout-c .exp-topo strong { font-size: 10.5pt; }
 .cv.layout-c .empresa { color: #333; font-size: 9.5pt; }
@@ -625,12 +639,26 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 .troca-layout h3 { font-family: var(--titulo); font-size: 24px; font-weight: 800; margin: 0 0 4px; }
 .troca-layout .ajuda { margin-bottom: 10px; }
 .opcoes-layout { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-.opcoes-layout button {
+.opcoes-layout button, .btn-foto {
   font: inherit; font-weight: 700; font-size: 14px; background: var(--cartao); color: var(--texto); cursor: pointer;
   border: 2px solid var(--texto); border-radius: 10px; padding: 8px 14px; box-shadow: 2px 2px 0 var(--texto);
 }
 .opcoes-layout button small { font-weight: 500; color: var(--suave); margin-left: 4px; }
 .opcoes-layout button.ativo { background: var(--amarelo); }
+.btn-foto { display: inline-block; margin: 0 8px 0 4px; }
+.caixa-foto {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin: 14px 0; padding: 12px 16px;
+  background: var(--cartao); border: 2.5px dashed var(--texto); border-radius: var(--raio);
+}
+.caixa-foto { flex-direction: column; align-items: flex-start; }
+.caixa-foto .escolha-foto { margin: 0; }
+.foto-controles { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.caixa-foto b { display: block; font-size: 16px; }
+.caixa-foto small { color: var(--suave); }
+.caixa-foto.pede { background: var(--amarelo); border-style: solid; box-shadow: var(--sombra); }
+.caixa-foto.pede small { color: inherit; }
+.aviso-foto { margin: 10px 0 0; }
+.aviso-pronto .aviso-foto .link { color: inherit; }
 .detalhes-aviso { margin-top: 8px; }
 .detalhes-aviso summary { color: inherit; text-decoration: underline; font-size: 14px; }
 .detalhes-aviso li { margin-bottom: 6px; }
@@ -684,16 +712,17 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 /* No escuro, as sombras "chapadas" ficam pretas (a borda clara já dá o contorno) */
 :root[data-tema="escuro"] .cartao, :root[data-tema="escuro"] .btn, :root[data-tema="escuro"] .aba-app,
 :root[data-tema="escuro"] .credito, :root[data-tema="escuro"] .balao, :root[data-tema="escuro"] .como-funciona li,
-:root[data-tema="escuro"] .garantia, :root[data-tema="escuro"] .opcoes-layout button, :root[data-tema="escuro"] .aviso,
+:root[data-tema="escuro"] .garantia, :root[data-tema="escuro"] .opcoes-layout button, :root[data-tema="escuro"] .btn-foto, :root[data-tema="escuro"] .aviso,
 :root[data-tema="escuro"] .aviso-pronto, :root[data-tema="escuro"] #saida > .barra, :root[data-tema="escuro"] .m-bloco,
 :root[data-tema="escuro"] .montador-caixa, :root[data-tema="escuro"] .topo h1 em, :root[data-tema="escuro"] .carregando {
   box-shadow: 3px 3px 0 #000;
 }
 :root[data-tema="escuro"] .montador-caixa { box-shadow: 8px 8px 0 #000; }
+:root[data-tema="escuro"] .caixa-foto.pede { box-shadow: 3px 3px 0 #000; }
 /* Tudo que tem fundo amarelo continua com texto escuro */
 :root[data-tema="escuro"] .btn:not(.secundario):not(.montar-btn), :root[data-tema="escuro"] .num,
 :root[data-tema="escuro"] .topo h1 em, :root[data-tema="escuro"] .credito-selos, :root[data-tema="escuro"] .me-contrata,
-:root[data-tema="escuro"] .aviso-pronto, :root[data-tema="escuro"] .opcoes-layout button.ativo,
+:root[data-tema="escuro"] .aviso-pronto, :root[data-tema="escuro"] .opcoes-layout button.ativo, :root[data-tema="escuro"] .caixa-foto.pede,
 :root[data-tema="escuro"] .como-funciona li .n, :root[data-tema="escuro"] .badge, :root[data-tema="escuro"] .m-chip.on,
 :root[data-tema="escuro"] .m-ind.atual span, :root[data-tema="escuro"] .garantia::before {
   color: var(--tinta-fixa) !important;
@@ -726,6 +755,23 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 :root[data-tema="escuro"] .tema-btn .sol { display: block; }
 :root[data-tema="escuro"] .tema-btn .lua { display: none; }
 @media (max-width: 900px) { .tema-btn { width: 40px; height: 40px; margin-left: 0; } }
+/* ===== Ajustar a foto do currículo ===== */
+.ajustar-foto {
+  background: var(--cartao); color: var(--texto); border: 2.5px solid var(--texto); border-radius: var(--raio);
+  box-shadow: var(--sombra); padding: 18px; width: min(340px, calc(100vw - 32px));
+}
+.ajustar-foto::backdrop { background: rgba(0, 0, 0, .55); }
+.ajustar-foto b { display: block; font-family: var(--titulo); font-size: 20px; }
+.ajustar-foto small { display: block; color: var(--suave); margin: 4px 0 12px; }
+#fotoTela {
+  display: block; width: 225px; height: 300px; margin: 0 auto; border: 2px solid var(--texto); border-radius: 4px;
+  cursor: grab; touch-action: none; /* no celular, arrastar move a foto em vez de rolar a página */
+}
+#fotoTela:active { cursor: grabbing; }
+.zoom-foto { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-weight: 700; }
+.zoom-foto input { flex: 1; accent-color: var(--amarelo); }
+.ajustar-foto .barra { display: flex; align-items: center; gap: 14px; }
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -867,6 +913,18 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
           <summary>Ou cole o texto da vaga</summary>
           <textarea id="textoVaga" rows="5" placeholder="Texto da vaga (opcional se enviou a foto)"></textarea>
         </details>
+        <div class="caixa-foto" id="caixaFoto">
+          <b id="fotoTitulo">Currículo com foto ou sem?</b>
+          <div class="opcoes-layout escolha-foto">
+            <button type="button" data-foto="0">Sem foto</button>
+            <button type="button" data-foto="1">📷 Com foto</button>
+          </div>
+          <div id="fotoControles" class="foto-controles" hidden>
+            <label class="btn-foto">Escolher foto<input type="file" id="fotoCv" accept="image/*" hidden></label>
+            <button type="button" id="tirarFoto" class="link" hidden>remover foto</button>
+          </div>
+          <small>Só use foto se o anúncio pedir. Vale também para o currículo montado do zero.</small>
+        </div>
         <button id="adaptar" class="btn grande">Adaptar meu currículo</button>
       </section>
 
@@ -925,6 +983,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
           <div>
             <b>Prontinho!</b> Seu currículo está mais abaixo, depois da análise e das dicas.
             <button type="button" id="irParaCv" class="btn">Ver meu currículo ↓</button>
+            <p id="avisoFoto" class="aviso-foto" hidden>📷 <b>Essa vaga pede currículo com foto.</b> <button type="button" id="irParaFoto" class="link">Adicionar minha foto</button></p>
           </div>
         </div>
         <div id="abas" class="abas" hidden></div>
@@ -976,7 +1035,18 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
     </section>
   </main>
 
-  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0334</span></footer>
+  <dialog id="ajustarFoto" class="ajustar-foto">
+    <b>Ajeite sua foto</b>
+    <small>Arraste para posicionar e use a barra para aproximar. O rosto deve ficar no centro.</small>
+    <canvas id="fotoTela" width="300" height="400"></canvas>
+    <label class="zoom-foto">Zoom <input type="range" id="fotoZoom" min="1" max="3" step="0.01" value="1"></label>
+    <div class="barra">
+      <button type="button" id="fotoUsar" class="btn">Usar esta foto</button>
+      <button type="button" id="fotoCancelar" class="link">cancelar</button>
+    </div>
+  </dialog>
+
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-1425</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -999,7 +1069,19 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 // Usado pelo servidor (Node) e pela versão online (navegador).
 (function (raiz) {
 
-function montarPrompt(curriculo, textoVaga) {
+// chaves/manter: só na readaptação, para a % não mudar de base nem perder o que já batia.
+function montarPrompt(curriculo, textoVaga, chaves = [], manter = []) {
+  const lista = a => (Array.isArray(a) ? a : []).map(String).slice(0, 40);
+  chaves = lista(chaves); manter = lista(manter);
+  const readaptacao = chaves.length ? `
+
+READAPTAÇÃO: esta vaga já foi adaptada antes e o candidato acrescentou informações ao currículo.
+- No campo "vaga.palavras_chave" (só nesse campo) use EXATAMENTE esta lista: ${chaves.join(' | ')}
+  Estar nessa lista NÃO autoriza colocar a palavra no currículo: as REGRAS DE HONESTIDADE continuam valendo.
+${manter.length ? `- Estas palavras-chave JÁ ESTAVAM no currículo adaptado anterior e DEVEM continuar nele, com o mesmo
+  termo exato (no resumo, nas competências ou nos itens): ${manter.join(' | ')}
+` : ''}- Use as informações novas do currículo para incluir as palavras-chave que ainda faltavam SOMENTE quando o
+  currículo original comprovar com clareza. Se não comprovar, deixe fora do currículo (vai em "requisitos_nao_atendidos").` : '';
   return `Você é um especialista em recrutamento que adapta currículos para vagas específicas.
 
 Você vai receber (1) o CURRÍCULO ORIGINAL do candidato e (2) a VAGA, em imagem(ns) e/ou texto.
@@ -1023,21 +1105,25 @@ REGRAS ABSOLUTAS — HONESTIDADE (a mais importante de todas):
    certificações, cursos, ferramentas, tecnologias, idiomas, níveis de idioma ou competências.
 2. NUNCA copie da vaga uma competência, ferramenta ou requisito que o candidato não tem no original.
    Esses itens vão APENAS em "analise.requisitos_nao_atendidos".
-3. Você PODE: reordenar seções e itens; escolher os itens mais relevantes para a vaga; reescrever
+3. Você PODE: reordenar seções e itens; reescrever
    frases com verbos de ação, de forma mais clara e objetiva, SEM mudar o sentido nem exagerar;
    usar o mesmo termo que a vaga usa SOMENTE quando o currículo descreve claramente a mesma coisa
    (ex.: original "atendimento ao cliente" e vaga "atendimento ao público").
 4. Cada item de experiência deve ter em "fonte" o trecho do CURRÍCULO ORIGINAL que o comprova,
    copiado LITERALMENTE (letra por letra). Se não houver trecho que comprove, não crie o item.
 5. "resumo_fontes" deve listar os trechos literais do original usados para escrever o resumo.
-6. Mantenha TODAS as experiências profissionais e formações do original (para não criar lacunas);
-   nas menos relevantes você pode reduzir a quantidade de itens. Nome, contatos, cargos, empresas e
+6. NÃO REMOVA NADA do original: mantenha TODAS as experiências, TODOS os itens de cada experiência,
+   formações, cursos, competências, idiomas, projetos e informações confirmadas. O que for menos
+   relevante para a vaga vai para o fim da lista, mas continua no currículo. Nome, contatos, cargos, empresas e
    períodos devem ser copiados exatamente como no original.
 7. "objetivo" é o único campo em que você pode usar o nome do cargo da vaga.
 8. Se uma seção não existir no original, deixe-a vazia. Nunca preencha com algo genérico.
 9. Escreva em português do Brasil.
 10. Se o original tiver uma seção "INFORMAÇÕES CONFIRMADAS PELO CANDIDATO", trate-a como parte do currículo:
     encaixe cada informação no lugar certo (experiência, competências, cursos...), com a fonte literal.
+    As condições confirmadas (disponibilidade de horário, viagens, presencial, CNH, morar na região, início
+    imediato...) NUNCA ficam de fora: vão em "outros", numa seção com título "Disponibilidade", com as
+    mesmas palavras da vaga (ex.: "Disponibilidade para viagens").
 
 ANÁLISE: em "analise", liste quais requisitos da vaga o candidato atende (com a evidência literal
 do original), quais não atende, uma nota de compatibilidade de 0 a 100 e dicas honestas (por
@@ -1054,7 +1140,7 @@ experiências e formações.
 ${curriculo}
 ===== FIM DO CURRÍCULO =====
 ${textoVaga.trim() ? `\n===== TEXTO DA VAGA (fornecido pelo candidato) =====\n${textoVaga}\n===== FIM DA VAGA =====\n` : ''}
-A vaga também pode estar nas imagens anexadas.`;
+A vaga também pode estar nas imagens anexadas.${readaptacao}`;
 }
 
 const S = { type: 'STRING' };
@@ -1428,7 +1514,14 @@ function compatibilidade(curriculoOriginal, resultado) {
   };
 }
 
-const exportar = { validar, compatibilidade, norm };
+// Palavras-chave que o currículo original comprova: o termo inteiro aparece nele, nessa ordem
+// (palavras soltas em lugares diferentes não contam, ex.: "montagem" + "móveis" ≠ "montagem de móveis").
+function comprovadas(curriculoOriginal, chaves) {
+  const cv = ' ' + norm(curriculoOriginal) + ' ';
+  return (Array.isArray(chaves) ? chaves : []).map(String).filter(k => norm(k) && cv.includes(' ' + norm(k) + ' '));
+}
+
+const exportar = { validar, compatibilidade, comprovadas, norm };
 if (typeof module !== 'undefined' && module.exports) module.exports = exportar;
 else raiz.Validacao = exportar;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1536,7 +1629,7 @@ else raiz.IA = exportar;
 // Cada pessoa usa a própria chave do Gemini, e tudo fica salvo só neste aparelho (localStorage).
 (function () {
   const { montarPrompt, ESQUEMA, PROMPT_VAGAS, ESQUEMA_VAGAS, PROMPT_TRIAGEM, ESQUEMA_TRIAGEM, PROMPT_MONTAR, ESQUEMA_MONTAR } = window.Prompts;
-  const { validar, compatibilidade } = window.Validacao;
+  const { validar, compatibilidade, comprovadas } = window.Validacao;
 
   // ---------- armazenamento no aparelho ----------
   const PREFIXO = 'adaptador:';
@@ -1659,7 +1752,10 @@ else raiz.IA = exportar;
       const { imagens = [], textoVaga = '' } = corpo;
       if (!cv.trim()) throw new Error('Cadastre seu currículo primeiro.');
       if (!imagens.length && !textoVaga.trim()) throw new Error('Envie a foto/print da vaga ou cole o texto dela.');
-      const { resultado, modelo } = await gerar(partesComImagens(montarPrompt(cv, textoVaga), imagens), ESQUEMA);
+      const { resultado, modelo } = await gerar(partesComImagens(montarPrompt(cv, textoVaga, corpo.palavrasChave, comprovadas(cv, corpo.manterChaves)), imagens), ESQUEMA);
+      // Readaptação: mantém as palavras-chave da primeira vez, senão a % muda de base e parece cair
+      const fixas = corpo.palavrasChave;
+      if (Array.isArray(fixas) && fixas.length) resultado.vaga = { ...resultado.vaga, palavras_chave: fixas.map(String).slice(0, 40) };
       return guardarNoHistorico({
         id: Date.now().toString(), data: new Date().toISOString(), modelo, resultado,
         verificacao: validar(cv, resultado), compatibilidade: compatibilidade(cv, resultado),
@@ -1743,7 +1839,7 @@ else raiz.IA = exportar;
       periodo: { i: true, cor: '555555' }, empresa: { cor: '444444', sz: 20 },
     },
     b: { // Minimalista
-      fonte: 'Segoe UI', marcador: '•',
+      fonte: 'Segoe UI', marcador: '•', foto: 'redonda',
       nome: { sz: 42, b: true, cor: '1C1C1C' },
       objetivo: { sz: 22, cor: '555555' },
       contatos: { sz: 18, cor: '555555' },
@@ -1751,7 +1847,7 @@ else raiz.IA = exportar;
       periodo: { cor: '777777', sz: 18 }, empresa: { cor: '666666', sz: 18 },
     },
     c: { // Tradicional
-      fonte: 'Arial', marcador: '•', centralizarCabecalho: true,
+      fonte: 'Arial', marcador: '•', centralizarCabecalho: true, foto: 'contorno',
       nome: { sz: 34, b: true, caps: true, cor: '111111' },
       objetivo: { sz: 21, cor: '222222' },
       contatos: { sz: 18, cor: '222222' },
@@ -1777,7 +1873,7 @@ else raiz.IA = exportar;
   function par(runs, o = {}) {
     const ppr = [ // ordem exigida pelo formato do Word
       o.manterProximo && '<w:keepNext/>',
-      o.borda && `<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="${o.borda}"/></w:pBdr>`,
+      (o.borda || o.linhaAcima) && `<w:pBdr>${o.linhaAcima ? `<w:top w:val="single" w:sz="6" w:space="6" w:color="${o.linhaAcima}"/>` : ''}${o.borda ? `<w:bottom w:val="single" w:sz="6" w:space="4" w:color="${o.borda}"/>` : ''}</w:pBdr>`,
       o.faixa && `<w:shd w:val="clear" w:color="auto" w:fill="${o.faixa}"/>`,
       o.tabDireita && `<w:tabs><w:tab w:val="right" w:pos="${LARGURA_TEXTO}"/></w:tabs>`,
       `<w:spacing w:before="${o.antes || 0}" w:after="${o.depois ?? 40}"/>`,
@@ -1787,18 +1883,42 @@ else raiz.IA = exportar;
     return `<w:p><w:pPr>${ppr}</w:pPr>${runs}</w:p>`;
   }
 
+  // Foto presa no canto direito, ao lado do nome (medidas em EMU: 1 mm = 36000).
+  // "redonda": recorta o meio da 3x4 num quadrado e mostra em círculo (igual ao layout Minimalista na tela).
+  function desenhoFoto(forma) {
+    const redonda = forma === 'redonda';
+    const cx = redonda ? 936000 : 864000, cy = redonda ? 936000 : 1152000; // 24 x 32 mm: cabe na altura do cabeçalho
+    const geometria = redonda ? 'ellipse' : forma === 'contorno' ? 'rect' : 'roundRect';
+    const recorte = redonda ? '<a:srcRect t="12500" b="12500"/>' : '';
+    const linha = forma === 'contorno' ? '<a:ln w="9525"><a:solidFill><a:srgbClr val="999999"/></a:solidFill></a:ln>' : '';
+    return '<w:r><w:drawing><wp:anchor distT="0" distB="0" distL="114300" distR="0" simplePos="0" relativeHeight="1" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="0">'
+      + '<wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="margin"><wp:align>right</wp:align></wp:positionH><wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV>'
+      + `<wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapSquare wrapText="left"/><wp:docPr id="1" name="Foto"/><wp:cNvGraphicFramePr/>`
+      + '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="1" name="foto.jpeg"/><pic:cNvPicPr/></pic:nvPicPr>'
+      + `<pic:blipFill><a:blip r:embed="rIdFoto"/>${recorte}<a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+      + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="${geometria}"><a:avLst/></a:prstGeom>${linha}</pic:spPr>`
+      + '</pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r>';
+  }
+
   // Converte cada bloco do currículo (h1, h2, experiência, listas...) em parágrafos do Word.
   function corpo(cv, E) {
     const out = [];
     const centro = !!E.centralizarCabecalho;
+    const foto = (cv.querySelector('img.foto-cv')?.src || '').startsWith('data:image/jpeg;base64,') ? desenhoFoto(E.foto) : '';
+    // Com foto, a linha do Clássico sai de baixo dos contatos e vai para cima da 1ª seção, abaixo da foto
+    let linhaPendente = foto && E.linhaAbaixoContatos;
     const lista = ul => ul.querySelectorAll(':scope > li').forEach(li =>
       out.push(par(run(E.marcador) + tab + run(texto(li)), { recuo: true, depois: 20 })));
     for (const el of cv.children) {
       const c = el.classList;
-      if (el.tagName === 'H1') out.push(par(run(texto(el), E.nome), { depois: 20, centro }));
+      if (el.tagName === 'IMG') continue;
+      else if (el.tagName === 'H1') out.push(par(foto + run(texto(el), E.nome), { depois: 20, centro }));
       else if (c.contains('objetivo')) out.push(par(run(texto(el), E.objetivo), { depois: 20, centro }));
-      else if (c.contains('contatos')) out.push(par(run(texto(el), E.contatos), { depois: 120, centro, borda: E.linhaAbaixoContatos }));
-      else if (el.tagName === 'H2') out.push(par(run(texto(el), E.titulo), { faixa: E.faixaTitulo, antes: 200, depois: 80, manterProximo: true }));
+      else if (c.contains('contatos')) out.push(par(run(texto(el), E.contatos), { depois: 120, centro, borda: linhaPendente ? '' : E.linhaAbaixoContatos }));
+      else if (el.tagName === 'H2') {
+        out.push(par(run(texto(el), E.titulo), { faixa: E.faixaTitulo, antes: 200, depois: 80, manterProximo: true, linhaAcima: linhaPendente }));
+        linhaPendente = '';
+      }
       else if (el.tagName === 'UL') lista(el);
       else if (c.contains('exp')) {
         const topo = el.querySelector('.exp-topo');
@@ -1819,14 +1939,16 @@ else raiz.IA = exportar;
     + '<w:color w:val="1A1A1A"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="40" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>';
 
   const ARQUIVOS_FIXOS = {
-    '[Content_Types].xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
+    '[Content_Types].xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
     '_rels/.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
     'word/_rels/document.xml.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
   };
 
   function documento(cv, E) {
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+      + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+      + ' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"'
+      + ' xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'
       + corpo(cv, E)
       + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1021" w:right="1134" w:bottom="1021" w:left="1134" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr>'
       + '</w:body></w:document>';
@@ -1849,7 +1971,7 @@ else raiz.IA = exportar;
     const partes = [], central = [];
     let offset = 0;
     for (const [nome, conteudo] of Object.entries(arquivos)) {
-      const n = enc.encode(nome), dados = enc.encode(conteudo), crc = crc32(dados);
+      const n = enc.encode(nome), dados = typeof conteudo === 'string' ? enc.encode(conteudo) : conteudo, crc = crc32(dados);
       const local = new DataView(new ArrayBuffer(30));
       local.setUint32(0, 0x04034b50, true); local.setUint16(4, 20, true); local.setUint16(6, 0x0800, true);
       local.setUint16(8, 0, true); local.setUint16(10, 0, true); local.setUint16(12, 0x21, true);
@@ -1876,7 +1998,14 @@ else raiz.IA = exportar;
 
   window.gerarDocx = (cv, layout = 'a') => {
     const E = ESTILOS[layout] || ESTILOS.a;
-    return zip({ ...ARQUIVOS_FIXOS, 'word/styles.xml': estilos(E.fonte), 'word/document.xml': documento(cv, E) });
+    const arquivos = { ...ARQUIVOS_FIXOS, 'word/styles.xml': estilos(E.fonte), 'word/document.xml': documento(cv, E) };
+    const foto = cv.querySelector('img.foto-cv')?.src || '';
+    if (foto.startsWith('data:image/jpeg;base64,')) {
+      arquivos['word/media/foto.jpeg'] = Uint8Array.from(atob(foto.split(',')[1]), ch => ch.charCodeAt(0));
+      arquivos['word/_rels/document.xml.rels'] = arquivos['word/_rels/document.xml.rels'].replace('</Relationships>',
+        '<Relationship Id="rIdFoto" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/foto.jpeg"/></Relationships>');
+    }
+    return zip(arquivos);
   };
 })();
 
@@ -2176,7 +2305,7 @@ async function adaptarVagas(lista, variasNoAnuncio = false) {
       ocupado(true, lista.length > 1
         ? `Adaptando para “${v.cargo}” (${i + 1} de ${lista.length})…`
         : 'Adaptando seu currículo para a vaga…');
-      gerados.push(await api('/api/adaptar', { method: 'POST', body: { imagens: [], textoVaga: textoDaVaga(v, variasNoAnuncio) } }));
+      gerados.push(await api('/api/adaptar', { method: 'POST', body: { imagens: [], textoVaga: textoDaVaga(v, variasNoAnuncio), palavrasChave: v.palavrasChave, manterChaves: v.manterChaves } }));
     }
   } catch (e) {
     alert(e.message + (gerados.length ? `\n\n${gerados.length} currículo(s) foram gerados antes do erro.` : ''));
@@ -2214,6 +2343,8 @@ function exibir(reg) {
   desenharAnalise(reg);
   desenharTriagem(reg.triagem);
   $('cv').innerHTML = montarCv(resultado.curriculo || {}, new Set((verificacao.termosSuspeitos || []).map(norm)));
+  vagaPedeFoto = PEDE_FOTO.test(resultado.vaga?.texto_transcrito || '');
+  mostrarFoto();
   // Desce sozinho até o resultado (no celular ele fica bem abaixo do formulário)
   setTimeout(() => rolarPara($('saida')), 60);
 }
@@ -2308,6 +2439,8 @@ function desenharAnalise(reg) {
   $('readaptar').onclick = () => adaptarVagas([{
     cargo: atual.resultado.vaga?.cargo || '',
     texto_completo: atual.resultado.vaga?.texto_transcrito || '',
+    palavrasChave: atual.resultado.vaga?.palavras_chave,
+    manterChaves: atual.compatibilidade?.encontradas,
   }], true);
   adicionadas = 0;
 }
@@ -2376,7 +2509,7 @@ function montarCv(c, s) {
       ${f.instituicao ? `<div class="empresa">${m(f.instituicao)}</div>` : ''}
     </div>`).join('');
 
-  return `
+  return `${tagFoto()}
     <h1>${m(nomeBonito(c.nome))}</h1>
     ${c.objetivo ? `<div class="objetivo">${esc(c.objetivo)}</div>` : ''}
     <div class="contatos">${(c.contatos || []).map(m).join(' &nbsp;·&nbsp; ')}</div>
@@ -2462,7 +2595,100 @@ document.querySelectorAll('[data-layout]').forEach(b => b.onclick = () => aplica
 $('layoutCv').onchange = e => aplicarLayout(e.target.value);
 aplicarLayout(layoutAtual);
 
-$('mostrarMarcas').onchange = e => $('cv').classList.toggle('com-marcas', e.target.checked);
+// ---------- Foto (opcional: só algumas vagas pedem) ----------
+// Fica só neste aparelho; recortada em 3x4 e pequena, para caber no armazenamento e no PDF.
+// A pessoa escolhe "Sem foto" ou "Com foto"; a foto fica guardada mesmo quando escolhe "Sem foto".
+let fotoCv = '', usarFoto = false;
+try { fotoCv = localStorage.getItem('fotoCv') || ''; usarFoto = localStorage.getItem('usarFoto') === '1'; } catch {}
+const tagFoto = () => usarFoto && fotoCv ? `<img class="foto-cv" src="${fotoCv}" alt="Foto">` : '';
+// Só um aviso: lê o texto da vaga procurando pedido de foto (ex.: "currículo com foto", "foto 3x4").
+let vagaPedeFoto = false;
+const PEDE_FOTO = /com foto|foto (3x4|recente|de rosto|atual)|curr[ií]culo[^.\n]{0,30}\bfoto|\bfoto[^.\n]{0,30}curr[ií]culo/i;
+
+function mostrarFoto() {
+  $('cv').querySelector('img.foto-cv')?.remove();
+  if (tagFoto() && $('cv').firstChild) $('cv').insertAdjacentHTML('afterbegin', tagFoto());
+  document.querySelectorAll('[data-foto]').forEach(b => b.classList.toggle('ativo', (b.dataset.foto === '1') === usarFoto));
+  $('fotoControles').hidden = !usarFoto;
+  $('tirarFoto').hidden = !fotoCv;
+  $('fotoCv').parentElement.firstChild.textContent = fotoCv ? 'Trocar foto' : 'Escolher foto';
+  const comFoto = usarFoto && fotoCv;
+  $('fotoTitulo').textContent = comFoto ? 'Currículo com foto ✓' : vagaPedeFoto ? 'Essa vaga pede foto!' : 'Currículo com foto ou sem?';
+  $('caixaFoto').classList.toggle('pede', vagaPedeFoto && !comFoto);
+  $('avisoFoto').hidden = !vagaPedeFoto || !!comFoto;
+}
+function escolherFoto(sim) {
+  usarFoto = sim;
+  try { localStorage.setItem('usarFoto', sim ? '1' : '0'); } catch {}
+  mostrarFoto();
+  if (sim && !fotoCv) $('fotoCv').click(); // "Com foto" sem foto guardada: já abre a escolha
+}
+function guardarFoto(url) {
+  fotoCv = url;
+  try { url ? localStorage.setItem('fotoCv', url) : localStorage.removeItem('fotoCv'); } catch {}
+  mostrarFoto();
+}
+document.querySelectorAll('[data-foto]').forEach(b => b.onclick = () => escolherFoto(b.dataset.foto === '1'));
+$('irParaFoto').onclick = () => escolherFoto(true);
+
+$('fotoCv').onchange = e => {
+  const arq = e.target.files[0];
+  e.target.value = '';
+  if (!arq) return;
+  const img = new Image();
+  img.onload = () => { URL.revokeObjectURL(img.src); abrirAjuste(img); };
+  img.onerror = () => alert('Não consegui abrir essa imagem.');
+  img.src = URL.createObjectURL(arq);
+};
+
+// Janelinha para ajeitar o recorte 3x4: arrastar move, a barra aproxima. A tela já é a foto final (300x400).
+const ajuste = { img: null, zoom: 1, x: 0, y: 0 };
+function desenharAjuste() {
+  const tela = $('fotoTela'), { img } = ajuste;
+  const s = Math.max(tela.width / img.width, tela.height / img.height) * ajuste.zoom;
+  const w = img.width * s, h = img.height * s;
+  // Não deixa sobrar borda vazia: a foto sempre cobre o quadro todo
+  ajuste.x = Math.min(0, Math.max(tela.width - w, ajuste.x));
+  ajuste.y = Math.min(0, Math.max(tela.height - h, ajuste.y));
+  const ctx = tela.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, tela.width, tela.height);
+  ctx.drawImage(img, ajuste.x, ajuste.y, w, h);
+}
+function abrirAjuste(img) {
+  const tela = $('fotoTela');
+  const s = Math.max(tela.width / img.width, tela.height / img.height);
+  Object.assign(ajuste, { img, zoom: 1, x: (tela.width - img.width * s) / 2, y: (tela.height - img.height * s) / 2 });
+  $('fotoZoom').value = 1;
+  desenharAjuste();
+  $('ajustarFoto').showModal();
+}
+$('fotoZoom').oninput = e => {
+  // Aproxima mantendo o centro do quadro no mesmo ponto da foto
+  const tela = $('fotoTela'), cx = tela.width / 2, cy = tela.height / 2;
+  const fator = +e.target.value / ajuste.zoom;
+  ajuste.x = cx - (cx - ajuste.x) * fator;
+  ajuste.y = cy - (cy - ajuste.y) * fator;
+  ajuste.zoom = +e.target.value;
+  desenharAjuste();
+};
+$('fotoTela').onpointerdown = e => {
+  const tela = e.currentTarget, k = tela.width / tela.getBoundingClientRect().width;
+  let ux = e.clientX, uy = e.clientY;
+  tela.setPointerCapture(e.pointerId);
+  tela.onpointermove = ev => {
+    ajuste.x += (ev.clientX - ux) * k; ajuste.y += (ev.clientY - uy) * k;
+    ux = ev.clientX; uy = ev.clientY;
+    desenharAjuste();
+  };
+  tela.onpointerup = () => { tela.onpointermove = null; };
+};
+$('fotoUsar').onclick = () => { guardarFoto($('fotoTela').toDataURL('image/jpeg', 0.85)); $('ajustarFoto').close(); };
+$('fotoCancelar').onclick = () => $('ajustarFoto').close();
+$('tirarFoto').onclick = () => guardarFoto('');
+mostrarFoto();
+
+$('mostrarMarcas').onchange =e => $('cv').classList.toggle('com-marcas', e.target.checked);
 
 // ---------- Exportar ----------
 function nomeArquivo() {
