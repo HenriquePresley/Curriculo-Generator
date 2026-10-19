@@ -4,159 +4,290 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Adaptador de Currículo</title>
+  <meta name="theme-color" content="#fff7e8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%230e7c66'/%3E%3Cpath d='M16 12h12l6 6v18H16z' fill='%23fff'/%3E%3Cpath d='M20 25l3 3 6-7' stroke='%230e7c66' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
   <style>
+/* ===== Identidade: divertida, contornos fortes e cores vivas ===== */
 :root {
-  --fundo: #f3f4f7;
+  --fundo: #fff7e8;            /* creme */
   --cartao: #ffffff;
-  --texto: #1d2230;
-  --suave: #5f6677;
-  --borda: #dfe2ea;
-  --destaque: #2457d6;
-  --destaque-escuro: #1a43a8;
-  --ok: #1d7a46;
-  --ok-fundo: #e7f6ee;
-  --alerta: #a35a00;
-  --alerta-fundo: #fff4e0;
-  --erro: #b42318;
-  --erro-fundo: #fdecea;
+  --texto: #141414;            /* tinta */
+  --suave: #5b5a57;
+  --borda: #141414;
+  --linha: #141414;
+  --amarelo: #ffd23f;
+  --rosa: #ff8fb1;
+  --azul: #6e8bff;
+  --verde: #4fd18b;
+  --laranja: #ff9b54;
+  --destaque: #3456e0;         /* links e detalhes */
+  --destaque-escuro: #1f3cb8;
+  --destaque-claro: #eaefff;
+  --destaque-borda: #141414;
+  --acento: #3456e0;
+  --neutro-claro: #f4efe4;
+  --ok: #17824b;
+  --ok-fundo: #dcf7e8;
+  --alerta: #8a5300;
+  --alerta-fundo: #fff0c7;
+  --erro: #c4271b;
+  --erro-fundo: #ffe1dc;
+  --sombra: 4px 4px 0 var(--texto);
+  --raio: 14px;
+  --titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --fonte: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-.o-que-e { margin: 0 0 10px; font-size: 13.5px; }
-.o-que-e summary { cursor: pointer; color: var(--destaque); }
-.o-que-e p { color: var(--suave); line-height: 1.5; margin: 6px 0 0; }
-.passos-chave { margin: 0 0 8px; padding-left: 20px; font-size: 14px; line-height: 1.45; }
-.passos-chave li { margin-bottom: 12px; }
-.passos-chave small { display: block; color: var(--suave); margin-top: 4px; }
-.passos-chave input { margin: 6px 0 0; }
-.passos-chave .btn.grande { margin-top: 0; }
-.btn-google { display: inline-block; text-decoration: none; }
-.chave-status { font-size: 14px; font-weight: 600; min-height: 1em; margin: 0 0 8px; }
-.chave-status.erro { color: var(--erro); }
-.so-online { display: none; }
-body.modo-online .so-online { display: block; }
-.dica-pdf { background: #f2f5ff; border-radius: 10px; padding: 10px 14px; }
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: var(--fonte);
   background: var(--fundo);
+  background-image: radial-gradient(rgba(20, 20, 20, .07) 1px, transparent 1px);
+  background-size: 22px 22px;
   color: var(--texto);
   font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
-.topo { padding: 20px 28px 8px; }
-.topo h1 { margin: 0; font-size: 24px; }
-.topo p { margin: 4px 0 0; color: var(--suave); }
+a { color: var(--destaque); font-weight: 600; }
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
 
+/* ===== Cabeçalho ===== */
+.topo { padding: 30px 28px 6px; }
+.topo-conteudo, .abas-app { max-width: 1180px; margin: 0 auto; }
+.topo-conteudo { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+.topo h1 { margin: 0; font-family: var(--titulo); font-weight: 800; font-size: 40px; letter-spacing: -1.2px; line-height: 1.02; }
+.topo h1 em {
+  font-style: normal; background: var(--amarelo); padding: 0 10px; border: 2.5px solid var(--texto);
+  border-radius: 10px; box-shadow: 3px 3px 0 var(--texto); display: inline-block; transform: rotate(-1.5deg); margin-left: 4px;
+}
+.topo p { margin: 12px 0 0; color: var(--suave); font-size: 16px; max-width: 540px; }
+.adesivos { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; max-width: 420px; justify-content: flex-end; }
+.adesivos li {
+  font-weight: 700; font-size: 13.5px; padding: 7px 13px; border: 2px solid var(--texto); border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--texto); background: #fff;
+}
+.adesivos li:nth-child(1) { background: var(--verde); transform: rotate(-2deg); }
+.adesivos li:nth-child(2) { background: var(--rosa); transform: rotate(1.5deg); }
+.adesivos li:nth-child(3) { background: var(--azul); color: #fff; transform: rotate(-1deg); }
+
+.abas-app { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+.aba-app {
+  background: #fff; border: 2px solid var(--texto); border-radius: 999px; padding: 9px 18px;
+  font: inherit; font-weight: 700; font-size: 14.5px; color: var(--texto); cursor: pointer;
+  display: flex; align-items: center; gap: 8px; box-shadow: 2px 2px 0 var(--texto); transition: transform .08s, box-shadow .08s;
+}
+.aba-app:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--texto); }
+.aba-app.ativa { background: var(--texto); color: #fff; }
+.badge { background: var(--rosa); color: var(--texto); border: 1.5px solid currentColor; border-radius: 999px; font-size: 11.5px; padding: 0 7px; font-weight: 800; }
+.aba-app.ativa .badge { color: var(--texto); border-color: var(--rosa); }
+
+/* ===== Estrutura ===== */
 .layout {
   display: grid;
   grid-template-columns: minmax(320px, 400px) 1fr;
-  gap: 20px;
-  padding: 16px 28px 40px;
+  gap: 32px;
+  padding: 22px 28px 48px;
   align-items: start;
+  max-width: 1180px;
+  margin: 0 auto;
 }
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; padding: 12px 16px 32px; }
-  .topo { padding: 16px 16px 4px; }
+  .layout { grid-template-columns: 1fr; padding: 14px 16px 32px; gap: 4px; }
+  .topo { padding: 22px 16px 4px; }
+  .topo h1 { font-size: 31px; }
+  .adesivos { justify-content: flex-start; }
+  .abas-app { margin-top: 18px; }
+  .aba-app { flex: 1; justify-content: center; padding: 9px 10px; font-size: 13.5px; }
 }
 
 .cartao {
   background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 16px;
+  border: 2.5px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--sombra);
 }
-.cartao h2 { font-size: 16px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.cartao h2 { font-family: var(--titulo); font-size: 21px; font-weight: 800; letter-spacing: -.4px; margin: 0 0 12px; display: flex; align-items: center; gap: 10px; }
 .num {
-  display: inline-grid; place-items: center;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: var(--destaque); color: #fff; font-size: 13px;
+  display: inline-grid; place-items: center; flex: none;
+  width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--texto);
+  font-family: var(--titulo); font-size: 16px; font-weight: 800; background: var(--amarelo);
 }
-.ajuda { color: var(--suave); font-size: 13.5px; margin: 0 0 10px; line-height: 1.45; }
-.ok { color: var(--ok); }
+.painel > .cartao:nth-child(2) .num { background: var(--rosa); }
+.painel > .cartao:nth-child(3) .num { background: var(--azul); color: #fff; }
+.ajuda { color: var(--suave); font-size: 14px; margin: 0 0 12px; line-height: 1.55; }
+.ok { color: var(--ok); font-weight: 700; }
 
+/* ===== Campos ===== */
+input[type=password], input[type=text], input[type=email], input[type=date], input[type=month], textarea, select { font-family: inherit; }
 input[type=password], input[type=text], textarea {
   width: 100%;
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  padding: 9px 10px;
+  border: 2px solid var(--texto);
+  border-radius: 10px;
+  padding: 10px 12px;
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
   margin-bottom: 10px;
   background: #fff;
   color: var(--texto);
 }
-textarea { resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: none; box-shadow: 3px 3px 0 var(--azul) !important; }
+textarea { resize: vertical; line-height: 1.55; }
 
+/* ===== Botões ===== */
 .btn {
-  background: var(--destaque);
-  color: #fff;
-  border: 0;
-  border-radius: 8px;
-  padding: 9px 16px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn:hover { background: var(--destaque-escuro); }
-.btn:disabled { opacity: .6; cursor: wait; }
-.btn.secundario { background: #e8edfb; color: var(--destaque); }
-.btn.secundario:hover { background: #d9e2fa; }
-.btn.grande { width: 100%; padding: 13px; font-size: 16px; margin-top: 10px; }
-.arquivo { display: inline-block; margin-bottom: 10px; }
-.link { background: none; border: 0; color: var(--destaque); cursor: pointer; text-decoration: underline; font: inherit; }
-.status { margin-left: 10px; font-size: 13px; color: var(--ok); }
-
-.zona {
-  border: 2px dashed #b8c3e0;
+  background: var(--amarelo);
+  color: var(--texto);
+  border: 2px solid var(--texto);
   border-radius: 10px;
-  padding: 22px 12px;
+  padding: 10px 18px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--texto);
+  transition: transform .08s, box-shadow .08s, background .12s;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--texto); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--texto); }
+.btn:disabled { opacity: .6; cursor: wait; transform: none; }
+.btn.secundario { background: #fff; }
+.btn.secundario:hover { background: var(--neutro-claro); }
+.btn.grande { width: 100%; padding: 14px; font-size: 16px; margin-top: 12px; }
+.arquivo { display: inline-block; margin-bottom: 12px; }
+.link { background: none; border: 0; color: var(--destaque); cursor: pointer; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; font: inherit; font-weight: 700; padding: 0; }
+.status { margin-left: 10px; font-size: 13px; color: var(--ok); font-weight: 700; }
+
+/* ===== Passo 1: ativar a IA ===== */
+.o-que-e { margin: 0 0 14px; font-size: 14px; }
+.o-que-e summary { cursor: pointer; color: var(--destaque); font-weight: 700; }
+.o-que-e p { color: var(--texto); line-height: 1.6; margin: 8px 0 0; background: var(--neutro-claro); border: 2px dashed var(--texto); border-radius: 10px; padding: 10px 12px; }
+.passos-chave { margin: 0 0 8px; padding: 0; list-style: none; counter-reset: passo; font-size: 14.5px; line-height: 1.55; }
+.passos-chave li { counter-increment: passo; position: relative; padding-left: 36px; margin-bottom: 14px; }
+.passos-chave li::before {
+  content: counter(passo); position: absolute; left: 0; top: -1px;
+  width: 25px; height: 25px; border-radius: 50%; border: 2px solid var(--texto); display: grid; place-items: center;
+  background: #fff; font-family: var(--titulo); font-size: 13px; font-weight: 800;
+}
+.passos-chave small { display: block; color: var(--suave); margin-top: 5px; }
+.passos-chave input { margin: 6px 0 0; }
+.passos-chave .btn.grande { margin-top: 0; }
+.btn-google { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; background: var(--azul); color: #fff; }
+.chave-status { font-size: 14px; font-weight: 700; min-height: 1em; margin: 0 0 8px; }
+.chave-status.erro { color: var(--erro); }
+.rodape { max-width: 1180px; margin: 0 auto; color: var(--suave); font-size: 12.5px; padding: 10px 28px 32px; text-align: center; }
+.so-online { display: none; }
+body.modo-online .so-online { display: block; }
+.dica-pdf { background: var(--amarelo); border: 2px solid var(--texto); border-radius: 12px; padding: 10px 14px; box-shadow: 3px 3px 0 var(--texto); color: var(--texto); }
+
+/* ===== Área da vaga ===== */
+.zona {
+  border: 2.5px dashed var(--texto);
+  border-radius: 14px;
+  padding: 26px 16px;
   text-align: center;
   cursor: pointer;
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
   color: var(--suave);
   outline: none;
+  background: var(--destaque-claro);
+  transition: background .12s, transform .08s;
 }
-.zona strong { color: var(--texto); }
-.zona.arrastando, .zona:focus { border-color: var(--destaque); background: #f2f5ff; }
-.miniaturas { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.zona svg { width: 36px; height: 36px; color: var(--texto); margin-bottom: 6px; }
+.zona strong { color: var(--texto); font-size: 15.5px; font-weight: 800; }
+.zona span { font-size: 13.5px; }
+.zona:hover, .zona.arrastando, .zona:focus { background: #dfe6ff; transform: rotate(-.4deg); }
+.miniaturas { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
 .miniaturas div { position: relative; }
-.miniaturas img { width: 74px; height: 74px; object-fit: cover; border-radius: 6px; border: 1px solid var(--borda); }
+.miniaturas img { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; border: 2px solid var(--texto); }
 .miniaturas button {
-  position: absolute; top: -6px; right: -6px;
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 0; background: var(--erro); color: #fff; cursor: pointer; font-size: 12px; line-height: 1;
+  position: absolute; top: -8px; right: -8px;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--texto); background: var(--rosa); color: var(--texto); font-weight: 800; cursor: pointer; font-size: 12px; line-height: 1;
 }
-details summary { cursor: pointer; color: var(--destaque); font-size: 14px; margin: 6px 0; }
+details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font-weight: 700; margin: 10px 0; }
 
+/* ===== Histórico ===== */
 .historico { list-style: none; margin: 0; padding: 0; }
-.historico li { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--borda); }
+.historico li { display: flex; align-items: center; gap: 6px; border-top: 2px dashed #d9d2c2; }
 .historico li:first-child { border-top: 0; }
 .historico li button.abrir {
-  flex: 1; text-align: left; background: none; border: 0; padding: 8px 2px; cursor: pointer; font: inherit; color: var(--texto);
+  flex: 1; text-align: left; background: none; border: 0; padding: 10px 0; cursor: pointer; font: inherit; font-weight: 700; color: var(--texto);
 }
 .historico li button.abrir:hover { color: var(--destaque); }
-.historico small { display: block; color: var(--suave); font-size: 12px; }
-.historico .apagar { background: none; border: 0; color: var(--suave); cursor: pointer; font-size: 16px; }
+.historico small { display: block; color: var(--suave); font-size: 12.5px; font-weight: 400; margin-top: 1px; }
+.historico .apagar { background: none; border: 0; color: var(--suave); cursor: pointer; font-size: 18px; font-weight: 700; padding: 4px 8px; border-radius: 8px; }
+.historico .apagar:hover { background: var(--erro-fundo); color: var(--erro); }
 .vazio { color: var(--suave); font-size: 14px; }
 
+/* ===== Resultado: tela inicial e carregando ===== */
 .resultado { min-width: 0; }
-.vazio-grande {
-  border: 2px dashed var(--borda); border-radius: 12px;
-  min-height: 300px; display: grid; place-items: center; color: var(--suave);
+.vazio-grande { min-height: 300px; color: var(--suave); }
+.como-funciona h2 { color: var(--texto); font-family: var(--titulo); font-size: 40px; font-weight: 800; letter-spacing: -1.3px; line-height: 1.05; margin: 4px 0 14px; }
+.como-funciona h2 em { font-style: normal; background: linear-gradient(transparent 58%, var(--rosa) 58%); padding: 0 2px; }
+.como-funciona > p { margin: 0 0 24px; font-size: 16px; line-height: 1.6; max-width: 540px; color: var(--suave); }
+.como-funciona ol { list-style: none; padding: 0; margin: 0 0 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.como-funciona li {
+  border: 2.5px solid var(--texto); border-radius: var(--raio); padding: 16px; box-shadow: var(--sombra); color: var(--texto);
+  display: flex; flex-direction: column; gap: 6px;
 }
-.carregando { text-align: center; padding: 80px 0; color: var(--suave); }
+.como-funciona li:nth-child(1) { background: var(--amarelo); transform: rotate(-1deg); }
+.como-funciona li:nth-child(2) { background: var(--rosa); transform: rotate(.8deg); }
+.como-funciona li:nth-child(3) { background: var(--azul); color: #fff; transform: rotate(-.6deg); }
+.como-funciona li .n { font-family: var(--titulo); font-size: 34px; font-weight: 800; line-height: 1; }
+.como-funciona li b { display: block; font-family: var(--titulo); font-size: 17px; font-weight: 800; }
+.como-funciona li span { font-size: 14px; line-height: 1.5; }
+.garantia {
+  font-size: 15px; line-height: 1.55; color: var(--texto); background: #fff; border: 2.5px solid var(--texto);
+  border-radius: var(--raio); box-shadow: var(--sombra); padding: 14px 16px; margin: 0; max-width: 620px;
+}
+.garantia::before { content: "Promessa: "; font-family: var(--titulo); font-weight: 800; background: var(--verde); border: 2px solid var(--texto); border-radius: 999px; padding: 1px 10px; margin-right: 6px; font-size: 13px; }
+@media (max-width: 700px) {
+  .como-funciona h2 { font-size: 30px; }
+  .como-funciona ol { grid-template-columns: 1fr; }
+}
+.carregando { text-align: center; padding: 70px 20px; color: var(--suave); background: #fff; border: 2.5px solid var(--texto); border-radius: var(--raio); box-shadow: var(--sombra); }
+.carregando p { font-family: var(--titulo); font-size: 22px; font-weight: 800; color: var(--texto); margin: 0; }
+.carregando small { display: block; font-family: var(--fonte); font-size: 14px; font-weight: 400; color: var(--suave); margin-top: 6px; }
 .giro {
-  width: 42px; height: 42px; margin: 0 auto 14px;
-  border: 4px solid #d7def0; border-top-color: var(--destaque); border-radius: 50%;
-  animation: girar 0.9s linear infinite;
+  width: 46px; height: 46px; margin: 0 auto 18px;
+  border: 5px solid var(--amarelo); border-top-color: var(--texto); border-radius: 50%;
+  animation: girar 0.8s linear infinite;
 }
 @keyframes girar { to { transform: rotate(360deg); } }
+
+/* ===== Curri, o mascote ===== */
+.marca { display: flex; align-items: center; gap: 16px; }
+.curri { display: block; overflow: visible; }
+.curri-topo { width: 62px; height: 68px; flex: none; transform: rotate(-6deg); transition: transform .2s; }
+.curri-topo:hover { transform: rotate(6deg) scale(1.06); }
+.curri-fala { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 18px; }
+.curri-aceno { width: 74px; height: 82px; flex: none; animation: aceno 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes aceno { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-8deg); } 86% { transform: rotate(7deg); } 93% { transform: rotate(-4deg); } }
+.balao {
+  position: relative; margin: 0 0 22px; background: #fff; border: 2.5px solid var(--texto); border-radius: 16px;
+  padding: 12px 15px; font-size: 14.5px; line-height: 1.5; color: var(--texto); box-shadow: 3px 3px 0 var(--texto); max-width: 430px;
+}
+.balao::before {
+  content: ""; position: absolute; left: -12px; bottom: 14px; width: 18px; height: 18px; background: #fff;
+  border-left: 2.5px solid var(--texto); border-bottom: 2.5px solid var(--texto); transform: rotate(45deg);
+}
+.carregando .curri-pulando { width: 70px; height: 78px; margin: 0 auto 18px; animation: pulo .9s ease-in-out infinite; }
+@keyframes pulo { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-16px) rotate(3deg); } }
+.carregando small { min-height: 1.5em; }
+@media (prefers-reduced-motion: reduce) { .curri-aceno, .curri-pulando { animation: none; } }
+@media (max-width: 900px) { .curri-topo { width: 48px; height: 53px; } .marca { gap: 12px; } }
 
 .barra { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
 .check { font-size: 14px; color: var(--suave); display: flex; gap: 6px; align-items: center; }
 
-.aviso { border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 14px; line-height: 1.45; }
+.aviso { border-radius: 12px; border: 2px solid var(--texto); box-shadow: 3px 3px 0 var(--texto); padding: 12px 16px; margin-bottom: 14px; font-size: 14px; line-height: 1.5; }
 .aviso.ok { background: var(--ok-fundo); color: var(--ok); }
 .aviso.atencao { background: var(--alerta-fundo); color: #5c3300; }
 .aviso.erro { background: var(--erro-fundo); color: var(--erro); }
@@ -170,7 +301,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
 .analise ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
 .analise .evid { color: var(--suave); font-size: 13px; }
 .medidor { display: flex; align-items: center; gap: 12px; }
-.medidor .trilho { flex: 1; height: 10px; background: #e6e9f0; border-radius: 5px; overflow: hidden; }
+.medidor .trilho { flex: 1; height: 10px; background: var(--neutro-claro); border-radius: 5px; overflow: hidden; }
 .medidor .barra-nota { height: 100%; background: var(--destaque); border-radius: 5px; }
 .medidor b { font-size: 20px; min-width: 52px; text-align: right; }
 
@@ -184,30 +315,37 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .chip { font-size: 13px; padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
 .chip.sim { background: var(--ok-fundo); color: var(--ok); }
-.chip.nao { background: #eef0f4; color: var(--suave); }
+.chip.nao { background: var(--neutro-claro); color: var(--suave); }
 .tenho {
   background: #fff; border: 1px solid var(--destaque); color: var(--destaque);
   border-radius: 999px; font-size: 12px; padding: 1px 8px; cursor: pointer; font-family: inherit;
 }
-.tenho:hover { background: #eef2fd; }
+.tenho:hover { background: var(--destaque-claro); }
 .tenho:disabled { border-color: var(--ok); color: var(--ok); cursor: default; background: #fff; }
 .analise li .tenho { margin-left: 6px; }
 .confirmacao, .readaptar {
-  margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: #f2f5ff; border: 1px solid #d6dff7;
+  margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--destaque-claro); border: 1px solid var(--destaque-borda);
 }
 .confirmacao .ajuda { margin-top: 4px; }
 .readaptar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--ok-fundo); border-color: #bfe5cf; }
 .dica-edicao { margin-top: 4px; }
 
-/* ===== Abas do app e candidaturas ===== */
-.abas-app { display: flex; gap: 6px; margin-top: 14px; border-bottom: 1px solid var(--borda); }
-.aba-app {
-  background: none; border: 0; border-bottom: 3px solid transparent; padding: 9px 14px;
-  font: inherit; font-weight: 600; color: var(--suave); cursor: pointer; display: flex; align-items: center; gap: 6px;
+/* Barra de ações do resultado */
+#saida > .barra { background: #fff; border: 2.5px solid var(--texto); border-radius: var(--raio); box-shadow: var(--sombra); padding: 12px 14px; gap: 10px; margin-bottom: 20px; }
+#saida > .barra .check { margin-left: 4px; }
+.check select, .envio-linha select {
+  font: inherit; font-size: 13.5px; font-weight: 600; color: var(--texto);
+  border: 1px solid var(--borda); border-radius: 9px; padding: 7px 28px 7px 10px; background: #fff;
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d6875' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; background-size: 14px;
 }
-.aba-app.ativa { color: var(--destaque); border-bottom-color: var(--destaque); }
-.badge { background: var(--erro); color: #fff; border-radius: 999px; font-size: 12px; padding: 1px 7px; }
+.check input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--destaque); }
+@media (max-width: 700px) {
+  #saida > .barra .btn { flex: 1 1 calc(50% - 8px); padding: 10px 8px; font-size: 13.5px; }
+}
 
+/* ===== Candidaturas ===== */
 .layout.candidaturas { grid-template-columns: 1fr; max-width: 900px; }
 .cand-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .contadores { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -216,7 +354,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
   font: inherit; font-size: 13.5px; cursor: pointer; color: var(--texto);
 }
 .contador b { margin-left: 4px; }
-.contador.ativo { border-color: var(--destaque); background: #eef2fd; color: var(--destaque); }
+.contador.ativo { border-color: var(--destaque); background: var(--destaque-claro); color: var(--destaque); }
 
 .form-cand h2 { margin-bottom: 12px; }
 .grade-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0 14px; }
@@ -236,29 +374,37 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
 .cand-meta { margin: 3px 0 0; font-size: 13px; color: var(--suave); }
 .cand-meta a { color: var(--destaque); }
 .sel-status { border: 1px solid var(--borda); border-radius: 999px; padding: 5px 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-.sel-status.azul { background: #eef2fd; color: var(--destaque); }
+.sel-status.azul { background: var(--destaque-claro); color: var(--destaque); }
 .sel-status.roxo { background: #f3edfd; color: #6a3fc1; }
 .sel-status.verde { background: var(--ok-fundo); color: var(--ok); }
-.sel-status.cinza { background: #eef0f4; color: var(--suave); }
+.sel-status.cinza { background: var(--neutro-claro); color: var(--suave); }
 .cand-alerta { margin: 8px 0 0; font-size: 13.5px; font-weight: 600; color: var(--alerta); }
 .cand-lembrete { margin: 8px 0 0; font-size: 13px; color: var(--suave); }
-.cand-obs { margin: 8px 0 0; font-size: 13.5px; background: #f6f7fa; border-radius: 8px; padding: 6px 10px; }
+.cand-obs { margin: 8px 0 0; font-size: 13.5px; background: var(--neutro-claro); border-radius: 8px; padding: 6px 10px; }
 .cand-tempo { margin: 6px 0 0; font-size: 12px; color: var(--suave); }
 .cand-acoes { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 13.5px; }
 .link.perigo { color: var(--erro); }
 .cand-msg textarea { width: 100%; margin-top: 10px; border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 14px; }
 .cand-msg .barra { margin: 6px 0 0; }
 
-.envio-box { background: #f2f5ff; border-color: #d6dff7; }
+.envio-box { background: var(--destaque-claro); border-color: var(--destaque-borda); }
 .envio-linha { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: flex-start; }
 .envio-linha select { width: auto; flex: 0 0 auto; }
 .envio-linha input { flex: 1 1 200px; width: auto; }
 .envio-linha .btn { margin-top: 3px; }
 
 /* ===== Montar do zero ===== */
-.montar-btn { width: 100%; margin-bottom: 12px; background: linear-gradient(135deg, #2457d6, #5b3fd1); }
+.montar-btn { width: 100%; margin-bottom: 14px; background: var(--rosa); }
+.montar-btn:hover { background: #ff7aa2; }
 .montador { position: fixed; inset: 0; background: rgba(15, 20, 35, .55); z-index: 50; display: grid; place-items: center; padding: 16px; }
+.m-conteudo h2, .m-topo b { font-family: var(--titulo); font-weight: 800; }
+.m-bloco { border: 2px solid var(--texto) !important; box-shadow: 3px 3px 0 var(--texto); background: #fff !important; }
+.m-chip { border: 2px solid var(--texto) !important; font-weight: 600; }
+.m-chip.on { background: var(--amarelo) !important; color: var(--texto) !important; }
+.m-ind.atual span { background: var(--amarelo) !important; color: var(--texto) !important; border: 2px solid var(--texto); }
+.m-ind.atual { background: transparent !important; }
 .montador-caixa {
+  border: 3px solid var(--texto); box-shadow: 8px 8px 0 var(--texto);
   background: var(--cartao); border-radius: 14px; width: min(860px, 100%); height: min(92vh, 900px);
   display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
 }
@@ -266,9 +412,9 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
 .m-fechar { background: none; border: 0; font-size: 26px; line-height: 1; cursor: pointer; color: var(--suave); margin-left: 10px; }
 .m-indicador { display: flex; gap: 4px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid var(--borda); }
 .m-ind { background: none; border: 0; font: inherit; font-size: 12.5px; color: var(--suave); display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 8px; white-space: nowrap; cursor: default; }
-.m-ind span { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #e6e9f0; font-size: 11.5px; font-weight: 700; }
+.m-ind span { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--neutro-claro); font-size: 11.5px; font-weight: 700; }
 .m-ind.feito { cursor: pointer; } .m-ind.feito span { background: var(--ok); color: #fff; }
-.m-ind.atual { color: var(--texto); font-weight: 600; background: #eef2fd; } .m-ind.atual span { background: var(--destaque); color: #fff; }
+.m-ind.atual { color: var(--texto); font-weight: 600; background: var(--destaque-claro); } .m-ind.atual span { background: var(--destaque); color: #fff; }
 .m-conteudo { flex: 1; overflow-y: auto; padding: 18px 22px; }
 .m-conteudo h2 { margin: 0 0 4px; font-size: 20px; }
 .m-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
@@ -282,15 +428,15 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
 .m-campo small { display: block; font-weight: 400; color: var(--suave); margin-top: 3px; font-size: 12.5px; }
 .m-check { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 4px 0 12px; cursor: pointer; }
 .m-check input { width: 18px; height: 18px; accent-color: var(--destaque); }
-.m-bloco { border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px 4px; margin-bottom: 12px; background: #fafbfd; }
+.m-bloco { border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px 4px; margin-bottom: 12px; background: #fdfcfa; }
 .m-bloco-topo { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
 .m-sub { font-weight: 700; margin: 16px 0 8px; font-size: 14.5px; }
 .m-linha { display: grid; grid-template-columns: 1fr 160px auto; gap: 10px; align-items: center; }
 .m-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .m-chip { border: 1px solid var(--borda); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; cursor: pointer; user-select: none; background: #fff; }
 .m-chip input { display: none; }
-.m-chip.on { background: #eef2fd; border-color: var(--destaque); color: var(--destaque); font-weight: 600; }
-.m-revisao { white-space: pre-wrap; font-family: inherit; font-size: 13.5px; background: #f6f7fa; border-radius: 10px; padding: 14px; line-height: 1.5; }
+.m-chip.on { background: var(--destaque-claro); border-color: var(--destaque); color: var(--destaque); font-weight: 600; }
+.m-revisao { white-space: pre-wrap; font-family: inherit; font-size: 13.5px; background: var(--neutro-claro); border-radius: 10px; padding: 14px; line-height: 1.5; }
 .m-erro { color: var(--erro); font-weight: 600; font-size: 14px; min-height: 1em; }
 .m-rodape { display: flex; justify-content: space-between; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--borda); }
 .m-rodape .btn:only-child, .m-rodape #mVoltar[hidden] + .btn { margin-left: auto; }
@@ -323,7 +469,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
   border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
 }
 .opcao-vaga:hover { border-color: var(--destaque); }
-.opcao-vaga:has(input:checked) { border-color: var(--destaque); background: #f2f5ff; }
+.opcao-vaga:has(input:checked) { border-color: var(--destaque); background: var(--destaque-claro); }
 .opcao-vaga input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--destaque); }
 .opcao-vaga small { color: var(--suave); }
 .escolha .barra { margin: 12px 0 6px; }
@@ -403,7 +549,8 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
   /* Margem na página (e não só no currículo) para a 2ª página também ter respiro em cima e embaixo */
   @page { size: A4; margin: 12mm 0 14mm; }
   body { background: #fff; }
-  .topo, .painel, .barra, .abas, #verificacao, #analise, #triagem, #envioBox, .dica-edicao, .dica-pdf { display: none !important; }
+  .topo, .painel, .barra, .abas, #verificacao, #analise, #triagem, #envioBox, .dica-edicao, .dica-pdf,
+  .aviso-pronto, .troca-layout, .rodape { display: none !important; }
   .layout { display: block; padding: 0; }
   .cv { box-shadow: none; max-width: none; min-height: 0; margin: 0; padding: 4mm 18mm 0; }
   .cv h2 { break-after: avoid; }
@@ -411,17 +558,113 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
   .cv mark.suspeito { background: none !important; border: 0 !important; }
 }
 
+/* ===== Créditos no topo ===== */
+.lado-topo { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; max-width: 330px; }
+.credito {
+  display: block; text-decoration: none; color: var(--texto); font-weight: 500; font-size: 14px; line-height: 1.45;
+  background: #fff; border: 2.5px solid var(--texto); border-radius: 12px; box-shadow: 3px 3px 0 var(--texto);
+  padding: 10px 14px; transform: rotate(1deg); transition: transform .12s, box-shadow .12s;
+}
+.credito:hover { transform: rotate(0) translate(-1px, -1px); box-shadow: 4px 4px 0 var(--texto); }
+.credito { padding: 0; overflow: hidden; }
+.credito-selos {
+  display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 9px 14px; background: var(--amarelo);
+  border-bottom: 2px dashed var(--texto); font-size: 12.5px; font-weight: 800;
+}
+.credito-autor { display: block; padding: 10px 14px 12px; }
+.credito .me-contrata { background: #fff; }
+.credito b { font-weight: 800; }
+.me-contrata {
+  display: inline-block; margin-top: 4px; font-weight: 800; background: var(--amarelo);
+  border: 2px solid var(--texto); border-radius: 999px; padding: 1px 10px; font-size: 13px;
+}
+@media (max-width: 900px) {
+  .lado-topo { align-items: flex-start; max-width: none; width: 100%; }
+  .credito { transform: none; }
+}
+
+/* ===== Aviso "pronto" e troca de layout ===== */
+.aviso-pronto {
+  display: flex; align-items: center; gap: 14px; background: var(--amarelo); border: 2.5px solid var(--texto);
+  border-radius: var(--raio); box-shadow: var(--sombra); padding: 12px 16px; margin-bottom: 20px; font-size: 15px;
+}
+.aviso-pronto .curri { width: 46px; height: 51px; flex: none; }
+.aviso-pronto .btn { background: #fff; margin-left: 6px; padding: 7px 14px; font-size: 14px; }
+@media (max-width: 700px) { .aviso-pronto .btn { display: block; margin: 8px 0 0; } }
+.troca-layout { margin: 28px 0 14px; }
+.troca-layout h3 { font-family: var(--titulo); font-size: 24px; font-weight: 800; margin: 0 0 4px; }
+.troca-layout .ajuda { margin-bottom: 10px; }
+.opcoes-layout { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.opcoes-layout button {
+  font: inherit; font-weight: 700; font-size: 14px; background: #fff; color: var(--texto); cursor: pointer;
+  border: 2px solid var(--texto); border-radius: 10px; padding: 8px 14px; box-shadow: 2px 2px 0 var(--texto);
+}
+.opcoes-layout button small { font-weight: 500; color: var(--suave); margin-left: 4px; }
+.opcoes-layout button.ativo { background: var(--amarelo); }
+.detalhes-aviso { margin-top: 8px; }
+.detalhes-aviso summary { color: inherit; text-decoration: underline; font-size: 14px; }
+.detalhes-aviso li { margin-bottom: 6px; }
+
+/* ===== Menos cor: só o amarelo como destaque ===== */
+.topo-nota { margin: 0; font-weight: 700; font-size: 13.5px; color: var(--suave); }
+.num, .painel > .cartao:nth-child(2) .num, .painel > .cartao:nth-child(3) .num { background: var(--amarelo); color: var(--texto); }
+.como-funciona li, .como-funciona li:nth-child(1), .como-funciona li:nth-child(2), .como-funciona li:nth-child(3) {
+  background: #fff; color: var(--texto); transform: none;
+}
+.como-funciona li .n {
+  display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  border: 2px solid var(--texto); background: var(--amarelo); font-size: 18px;
+}
+.como-funciona li span { color: var(--suave); }
+.como-funciona h2 em { background: linear-gradient(transparent 58%, var(--amarelo) 58%); }
+.garantia::before { content: "Promessa: "; background: none; border: 0; padding: 0; margin: 0; font-size: inherit; }
+.montar-btn, .montar-btn:hover { background: #fff; }
+.montar-btn:hover { background: var(--neutro-claro); }
+.btn-google { background: var(--amarelo); color: var(--texto); }
+.dica-pdf { background: #fff; }
+.zona { background: #fff; }
+.zona:hover, .zona.arrastando, .zona:focus { background: #fffbeb; }
+.badge { background: var(--amarelo); }
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 </head>
 <body>
+  <!-- Curri, o mascote: uma folha de currículo com carinha -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="curri" viewBox="0 0 80 88">
+      <path d="M14 6h38l16 16v56a6 6 0 0 1-6 6H14a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6z" fill="#fff" stroke="#141414" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M52 6v12a4 4 0 0 0 4 4h12" fill="#ffd23f" stroke="#141414" stroke-width="3.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="40" rx="4.2" ry="5.4" fill="#141414"/>
+      <ellipse cx="49" cy="40" rx="4.2" ry="5.4" fill="#141414"/>
+      <circle cx="30.4" cy="38.2" r="1.4" fill="#fff"/><circle cx="50.4" cy="38.2" r="1.4" fill="#fff"/>
+      <ellipse cx="22" cy="50" rx="4.5" ry="2.8" fill="#ff8fb1"/><ellipse cx="56" cy="50" rx="4.5" ry="2.8" fill="#ff8fb1"/>
+      <path d="M32 51c3.5 4.5 10.5 4.5 14 0" fill="none" stroke="#141414" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M20 66h38M20 74h24" stroke="#141414" stroke-width="3" stroke-linecap="round" opacity=".25"/>
+    </symbol>
+  </svg>
+
   <header class="topo">
-    <h1>Adaptador de Currículo</h1>
-    <p>Mande o print da vaga e receba seu currículo adaptado, só com informações que estão no seu currículo.</p>
+    <div class="topo-conteudo">
+      <div class="marca">
+        <svg class="curri curri-topo" aria-hidden="true"><use href="#curri"/></svg>
+        <div>
+          <h1>Adaptador de <em>Currículo</em></h1>
+          <p>Um currículo sob medida pra cada vaga, a partir do print do anúncio. Sem inventar que você é fluente em mandarim.</p>
+        </div>
+      </div>
+      <div class="lado-topo">
+        <a class="credito" href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">
+          <span class="credito-selos"><span>✓ IA grátis</span><span>✓ Zero mentira</span><span>✓ Seus dados são seus</span></span>
+          <span class="credito-autor">Feito por <b>Henrique Presley</b>, que também tá procurando emprego.
+            <span class="me-contrata">Me contrata? →</span></span>
+        </a>
+      </div>
+    </div>
     <nav class="abas-app">
-      <button class="aba-app ativa" data-view="viewAdaptar">📄 Adaptar currículo</button>
-      <button class="aba-app" data-view="viewCandidaturas">📋 Minhas candidaturas <span id="badgeCobrar" class="badge" hidden></span></button>
+      <button class="aba-app ativa" data-view="viewAdaptar">Adaptar currículo</button>
+      <button class="aba-app" data-view="viewCandidaturas">Minhas candidaturas <span id="badgeCobrar" class="badge" hidden></span></button>
     </nav>
   </header>
 
@@ -484,13 +727,13 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
             <li>Se aparecer, aceite os termos. Depois toque no botão <b>"Criar chave de API"</b> (ou <i>"Create API key"</i>).</li>
             <li>Toque em <b>copiar</b> ao lado da chave que aparecer e volte para este app.</li>
             <li>
-              <button id="colarChave" class="btn grande" type="button">📋 Colar minha chave</button>
+              <button id="colarChave" class="btn grande" type="button">Colar minha chave</button>
               <small>Ou cole aqui embaixo:</small>
               <input id="apiKey" type="password" placeholder="Cole a chave aqui" autocomplete="off">
             </li>
           </ol>
           <p id="chaveStatus" class="chave-status"></p>
-          <p class="ajuda so-online">🔒 Versão online: sua chave, seu currículo e seu histórico ficam salvos só neste aparelho. Ninguém mais tem acesso.</p>
+          <p class="ajuda so-online">Versão online: sua chave, seu currículo e seu histórico ficam salvos só neste aparelho. Ninguém mais tem acesso.</p>
           <button id="salvarChave" class="btn">Ativar</button>
         </div>
       </section>
@@ -498,7 +741,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
       <section class="cartao">
         <h2><span class="num">2</span> Meu currículo</h2>
         <p class="ajuda">Envie seu currículo (PDF, Word ou TXT) ou cole o texto. Confira se o texto extraído ficou completo: é a única fonte que a IA pode usar.</p>
-        <button id="abrirMontador" class="btn montar-btn" type="button">✨ Não tenho currículo: montar do zero</button>
+        <button id="abrirMontador" class="btn montar-btn" type="button">Não tenho currículo: montar do zero</button>
         <label class="btn secundario arquivo">Escolher arquivo
           <input type="file" id="arquivoCv" accept=".pdf,.docx,.txt" hidden>
         </label>
@@ -510,8 +753,9 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
       <section class="cartao">
         <h2><span class="num">3</span> A vaga</h2>
         <div id="zona" class="zona" tabindex="0">
-          <strong>Clique, arraste ou cole (Ctrl+V)</strong>
-          <span>a foto ou print da vaga — pode ser mais de uma</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+          <strong>Toque para escolher a foto da vaga</strong>
+          <span>ou arraste / cole o print (Ctrl+V). Pode ser mais de uma.</span>
           <input type="file" id="arquivoVaga" accept="image/*" multiple hidden>
         </div>
         <div id="miniaturas" class="miniaturas"></div>
@@ -523,19 +767,32 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
       </section>
 
       <section class="cartao">
-        <h2>Histórico</h2>
-        <ul id="historico" class="historico"><li class="vazio">Nenhuma adaptação ainda.</li></ul>
+        <h2>Adaptações anteriores</h2>
+        <ul id="historico" class="historico"><li class="vazio">Nenhuma adaptação ainda. O primeiro currículo a gente nunca esquece.</li></ul>
       </section>
     </aside>
 
     <section class="resultado" id="resultado">
       <div class="vazio-grande" id="placeholder">
-        <p>Seu currículo adaptado aparece aqui.</p>
+        <div class="como-funciona">
+          <div class="curri-fala">
+            <svg class="curri curri-aceno" aria-hidden="true"><use href="#curri"/></svg>
+            <p class="balao">Oi, eu sou o <b>Curri</b>! Deixo seu currículo do jeitinho que a vaga pede. Inventar coisa sobre você? Nem sob tortura.</p>
+          </div>
+          <h2>Uma vaga, um currículo <em>pensado para ela</em>.</h2>
+          <p>Mande a foto do anúncio e o app reescreve o seu currículo com os termos que a vaga pede, na ordem que o recrutador procura. Tudo com base no que você já tem.</p>
+          <ol>
+            <li><span class="n">1</span><div><b>Ative a IA</b><span>Uma vez só, com sua conta Google. É grátis e leva um minuto.</span></div></li>
+            <li><span class="n">2</span><div><b>Envie seu currículo</b><span>PDF, Word ou texto. Se não tiver um, o app monta com você, pergunta por pergunta.</span></div></li>
+            <li><span class="n">3</span><div><b>Mande o print da vaga</b><span>Você recebe o currículo adaptado, quanto ele combina com a vaga e o que devem perguntar na entrevista.</span></div></li>
+          </ol>
+          <p class="garantia">Nada é inventado: a IA só usa o que está no seu currículo, e cada frase é conferida com o original. Se ela tentar te dar um MBA em Harvard, a gente pega.</p>
+        </div>
       </div>
 
       <div id="carregando" class="carregando" hidden>
-        <div class="giro"></div>
-        <p><span id="msgCarregando">Lendo a vaga…</span><br><small>leva uns 20–40 segundos</small></p>
+        <svg class="curri curri-pulando" aria-hidden="true"><use href="#curri"/></svg>
+        <p><span id="msgCarregando">Lendo a vaga…</span><small id="piadaCarregando">leva uns 20–40 segundos</small></p>
       </div>
 
       <div id="escolha" class="cartao escolha" hidden>
@@ -549,12 +806,19 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
       </div>
 
       <div id="saida" hidden>
+        <div class="aviso-pronto">
+          <svg class="curri" aria-hidden="true"><use href="#curri"/></svg>
+          <div>
+            <b>Prontinho!</b> Seu currículo está mais abaixo, depois da análise e das dicas.
+            <button type="button" id="irParaCv" class="btn">Ver meu currículo ↓</button>
+          </div>
+        </div>
         <div id="abas" class="abas" hidden></div>
         <div class="barra">
           <button id="baixarPdf" class="btn">Salvar PDF</button>
           <button id="baixarWord" class="btn secundario">Baixar Word (.docx)</button>
-          <button id="triar" class="btn secundario">🤖 Simular triagem por IA</button>
-          <button id="marcarEnviada" class="btn secundario">📨 Marquei como enviada</button>
+          <button id="triar" class="btn secundario">Simular triagem por IA</button>
+          <button id="marcarEnviada" class="btn secundario">Marquei como enviada</button>
           <label class="check">Layout
             <select id="layoutCv">
               <option value="a">Clássico (recomendado)</option>
@@ -565,7 +829,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
           <label class="check"><input type="checkbox" id="mostrarMarcas" checked> Destacar trechos a conferir</label>
         </div>
 
-        <p class="ajuda so-online dica-pdf">📱 <b>Salvar PDF no celular:</b> toque em "Salvar PDF" e, na tela que abrir, escolha <b>"Salvar como PDF"</b> como impressora (no iPhone: toque em compartilhar e depois em "Salvar em Arquivos").</p>
+        <p class="ajuda so-online dica-pdf"><b>Salvar PDF no celular:</b> toque em "Salvar PDF" e, na tela que abrir, escolha <b>"Salvar como PDF"</b> como impressora (no iPhone: toque em compartilhar e depois em "Salvar em Arquivos").</p>
         <div id="envioBox" class="cartao envio-box" hidden>
           <b>Onde você enviou este currículo?</b>
           <div class="envio-linha">
@@ -583,11 +847,22 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; marg
         <div id="analise" class="cartao analise"></div>
         <div id="triagem" class="cartao triagem" hidden></div>
 
-        <p class="ajuda dica-edicao">Você pode clicar no currículo abaixo e editar qualquer texto antes de salvar.</p>
+        <div class="troca-layout" id="trocaLayout">
+          <h3>Seu currículo</h3>
+          <p class="ajuda">Não curtiu o visual? Tem outros layouts, é só tocar:</p>
+          <div class="opcoes-layout">
+            <button type="button" data-layout="a">Clássico <small>recomendado</small></button>
+            <button type="button" data-layout="b">Minimalista</button>
+            <button type="button" data-layout="c">Tradicional</button>
+          </div>
+          <p class="ajuda dica-edicao">Dica: toque em qualquer texto do currículo para editar antes de salvar.</p>
+        </div>
         <article id="cv" class="cv layout-a com-marcas" contenteditable="true" spellcheck="true"></article>
       </div>
     </section>
   </main>
+
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0211</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -833,9 +1108,29 @@ COMO FAZER UM CURRÍCULO DE PRIMEIRA:
   comportamentais marcadas), sem repetir, com o nome oficial da ferramenta e sem detalhes de contexto
   (ex.: "instagram da lanchonete" → "Instagram"; "excel básico" → "Excel (básico)"; "whatsapp business" → "WhatsApp Business").
 - "idiomas": "Idioma – nível".
-- "outros": seções extras quando houver: "Projetos", "Trabalho voluntário", "Informações adicionais"
-  (CNH, disponibilidade e outras informações). Para quem não tem experiência, projetos, voluntariado e
-  atividades escolares são muito importantes: capriche neles.
+- "outros": seções extras quando houver: "Projetos e atividades", "Trabalho voluntário", "Informações adicionais"
+  (CNH, disponibilidade e outras informações).
+
+QUEM ESTÁ NO PRIMEIRO EMPREGO OU TEM POUCA EXPERIÊNCIA (capriche, é aqui que o currículo se destaca):
+- As ATIVIDADES E PROJETOS fazem o papel da experiência. Coloque a seção "Projetos e atividades" logo depois do
+  resumo (como primeiro item de "outros"). Cada item no formato:
+  "Título forte (onde, quando): o que a pessoa fez, em linguagem profissional, com números e resultado informados.
+  Competências demonstradas: X, Y."
+  Ex.: resposta "apresentação do setembro amarelo | O que fez: pesquisei, fiz os slides e apresentei pra 3 turmas"
+  → "Apresentação sobre o Setembro Amarelo (EEM Dom José, 2024): pesquisa sobre prevenção ao suicídio, criação dos
+  slides e apresentação para três turmas. Competências demonstradas: pesquisa, comunicação e apresentação em público."
+- "Competências demonstradas" só pode citar o que a própria descrição mostra diretamente (quem apresentou um
+  trabalho demonstrou apresentação em público; quem organizou um evento demonstrou organização). Nada de
+  ferramentas, números ou detalhes que a pessoa não escreveu. Se a descrição for curta, o item fica curto e você
+  pergunta mais em "perguntas".
+- DISPONIBILIDADE é um diferencial para quem está começando: escreva de forma profissional e cite no resumo quando
+  for ampla. Ex.: "dia e noite" → "Disponibilidade para os turnos diurno e noturno"; "qualquer horário" →
+  "Disponibilidade total de horário".
+- O resumo deve vender a pessoa com fatos: formação, o que ela já demonstrou nas atividades, as competências
+  marcadas que as atividades confirmam, a disponibilidade e a vaga que busca. Tom confiante, sem exagero.
+- Use também as informações da seção "MAIS INFORMAÇÕES", se existir: são respostas da pessoa às perguntas.
+- Em "perguntas", priorize o que deixaria as atividades mais fortes: o que exatamente a pessoa fez, para quantas
+  pessoas, com quais ferramentas, qual foi o resultado.
 - "dicas": 3 a 6 dicas honestas e práticas para fortalecer o currículo (ex.: um curso gratuito na área desejada).
 - "perguntas": 3 a 6 perguntas específicas cuja resposta deixaria o currículo mais forte
   (ex.: "Quantos clientes você atendia por dia na Loja X?", "Você usava algum sistema no caixa? Qual?").
@@ -929,7 +1224,13 @@ function validar(curriculoOriginal, resultado) {
 
   const cv = resultado.curriculo || {};
   checarFato('Nome', cv.nome);
-  (cv.contatos || []).forEach(c => checarFato('Contato', c));
+  // Telefone pode vir escrito de outro jeito ("(88) 9 9999-9999" x "88 99999-9999"): compara só os dígitos.
+  const cvDigitos = String(curriculoOriginal || '').replace(/\D/g, '');
+  (cv.contatos || []).forEach(c => {
+    const digitos = String(c || '').replace(/\D/g, '');
+    if (digitos.length >= 8 && cvDigitos.includes(digitos)) return;
+    checarFato('Contato', c);
+  });
   checarTexto('Resumo', cv.resumo);
   (cv.resumo_fontes || []).forEach(f => {
     if (!fonteExiste(f)) alertar('media', 'Resumo', f, 'A IA citou como fonte um trecho que não está no seu currículo');
@@ -1563,14 +1864,35 @@ function desenharMiniaturas() {
 }
 
 // ---------- Adaptar ----------
+// Frases para distrair enquanto a IA trabalha (trocam a cada poucos segundos)
+const PIADAS = [
+  'Lendo a vaga com óculos de leitura…',
+  'Passando o currículo a ferro…',
+  'Tirando o "proativo" que todo mundo já colocou…',
+  'Contando quantas vezes a vaga pediu Excel…',
+  'Convencendo a IA a não inventar que você fala alemão…',
+  'Alinhando as margens com régua e esquadro…',
+  'Escondendo aquele estágio de 2 semanas… brincadeira, a gente não esconde nada.',
+  'Ensaiando o aperto de mão com o RH…',
+  'Trocando "fiz de tudo um pouco" por algo que o RH entende…',
+  'Conferindo se ninguém colocou "Excel avançado" sem saber PROCV…',
+  'Penteando os tópicos…',
+  'Quase lá. O Curri tá dando os últimos retoques…',
+];
+let timerPiada = null;
+
 function ocupado(sim, msg = '') {
   $('adaptar').disabled = sim;
   $('carregando').hidden = !sim;
+  clearInterval(timerPiada);
   if (sim) {
     $('msgCarregando').textContent = msg;
     $('placeholder').hidden = true;
     $('saida').hidden = true;
     $('escolha').hidden = true;
+    let i = Math.floor(Math.random() * PIADAS.length);
+    $('piadaCarregando').textContent = PIADAS[i];
+    timerPiada = setInterval(() => { i = (i + 1) % PIADAS.length; $('piadaCarregando').textContent = PIADAS[i]; }, 3500);
   }
 }
 
@@ -1667,22 +1989,32 @@ function exibir(reg) {
   desenharAnalise(reg);
   desenharTriagem(reg.triagem);
   $('cv').innerHTML = montarCv(resultado.curriculo || {}, new Set((verificacao.termosSuspeitos || []).map(norm)));
-  $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Desce sozinho até o resultado (no celular ele fica bem abaixo do formulário)
+  setTimeout(() => rolarPara($('saida')), 60);
 }
+
+// Rola suave até o elemento; se o navegador ignorar a rolagem suave, pula direto.
+function rolarPara(el) {
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { if (Math.abs(el.getBoundingClientRect().top) > 80) el.scrollIntoView({ block: 'start' }); }, 700);
+}
+$('irParaCv').onclick = () => rolarPara($('trocaLayout'));
 
 function desenharVerificacao(v) {
   const alertas = v.alertas || [];
   if (!alertas.length) {
-    $('verificacao').innerHTML = `<div class="aviso ok">✔ <b>Verificação concluída:</b> tudo o que está no currículo adaptado foi encontrado no seu currículo original.</div>`;
+    $('verificacao').innerHTML = `<div class="aviso ok">✔ <b>Verificação concluída:</b> tudo o que está no currículo adaptado foi encontrado no seu currículo original. Pode mandar sem medo, nada inventado.</div>`;
     return;
   }
-  const altos = alertas.filter(a => a.gravidade === 'alta').length;
+  // Tom tranquilo: na maioria das vezes é só uma reescrita; a pessoa só precisa dar uma olhada.
   $('verificacao').innerHTML = `
-    <div class="aviso ${altos ? 'erro' : 'atencao'}">
-      <b>${altos ? '⚠ Confira antes de enviar:' : 'Pontos para conferir:'}</b>
-      a verificação automática encontrou ${alertas.length} trecho(s) que não batem exatamente com seu currículo original
-      (destacados em amarelo). Pode ser só uma reescrita, mas confira — edite ou apague se não for verdade.
-      <ul>${alertas.map(a => `<li><span class="grav">${a.gravidade === 'alta' ? 'Importante' : 'Atenção'}</span> · ${esc(a.onde)} — ${esc(a.motivo)}<br><em>“${esc(a.texto)}”</em></li>`).join('')}</ul>
+    <div class="aviso atencao">
+      <b>Dá uma conferida rapidinho:</b> ${alertas.length === 1 ? 'um trecho ficou' : `${alertas.length} trechos ficaram`}
+      um pouco diferente${alertas.length === 1 ? '' : 's'} do seu currículo original (marcado${alertas.length === 1 ? '' : 's'} em amarelo no currículo abaixo).
+      Normalmente é só a IA escrevendo de outro jeito. Se estiver certo, pode deixar; se não for verdade, é só editar ou apagar.
+      <details class="detalhes-aviso"><summary>Ver quais são</summary>
+        <ul>${alertas.map(a => `<li>${esc(a.onde)}: ${esc(a.motivo)}<br><em>“${esc(a.texto)}”</em></li>`).join('')}</ul>
+      </details>
     </div>`;
 }
 
@@ -1732,7 +2064,7 @@ function desenharAnalise(reg) {
       <span id="readaptarInfo"></span>
       <button id="readaptar" class="btn">Readaptar com as novas informações</button>
     </div>
-    <h3>💡 Dicas</h3>
+    <h3>Dicas</h3>
     ${lista(a.dicas, x => `<li>${esc(x)}</li>`)}`;
 
   $('analise').querySelectorAll('.tenho').forEach(b => b.onclick = () => abrirConfirmacao(b.dataset.req));
@@ -1794,6 +2126,12 @@ function montarCv(c, s) {
       ${ul((e.itens || []).map(i => i.texto))}
     </div>`).join('');
 
+  // Sem experiência: "Projetos e atividades" sobe para logo depois do resumo, no lugar da experiência.
+  const outros = c.outros || [];
+  const ehProjetos = o => /projeto|atividade|volunt/i.test(o.titulo || '');
+  const projetosNoLugarDaExperiencia = exps ? [] : outros.filter(ehProjetos);
+  const outrosRestantes = outros.filter(o => !projetosNoLugarDaExperiencia.includes(o));
+
   const forms = (c.formacao || []).map(f => `
     <div class="exp">
       <div class="exp-topo"><strong>${m(f.curso)}</strong><span class="periodo">${m(f.periodo)}</span></div>
@@ -1806,11 +2144,12 @@ function montarCv(c, s) {
     <div class="contatos">${(c.contatos || []).map(m).join(' &nbsp;·&nbsp; ')}</div>
     ${secao('Resumo profissional', c.resumo ? `<p>${m(c.resumo)}</p>` : '')}
     ${secao('Experiência profissional', exps)}
+    ${projetosNoLugarDaExperiencia.map(o => secao(esc(o.titulo), ul(o.itens))).join('')}
     ${secao('Competências', c.competencias?.length ? `<p class="tags">${c.competencias.map(m).join(' • ')}</p>` : '')}
     ${secao('Formação', forms)}
     ${secao('Cursos e certificações', ul(c.cursos))}
     ${secao('Idiomas', ul(c.idiomas))}
-    ${(c.outros || []).map(o => secao(esc(o.titulo), ul(o.itens))).join('')}`;
+    ${outrosRestantes.map(o => secao(esc(o.titulo), ul(o.itens))).join('')}`;
 }
 
 // ---------- Simulador de triagem ----------
@@ -1828,17 +2167,17 @@ function desenharTriagem(t) {
   box.hidden = false;
   box.innerHTML = `
     <div class="triagem-topo">
-      <div><h3>🤖 Simulação da triagem automática</h3>
+      <div><h3>Simulação da triagem automática</h3>
         <p class="ajuda">Uma segunda IA avaliou o currículo como o filtro de uma plataforma de recrutamento faria.</p></div>
       <div class="decisao ${d.classe}"><b>${Math.max(0, Math.min(100, t.nota || 0))}</b><span>${d.texto}</span></div>
     </div>
     <p>${esc(t.resumo)}</p>
-    ${lista('👍 Pesa a favor', t.pontos_fortes)}
-    ${lista('👎 Pesa contra', t.pontos_fracos)}
+    ${lista('Pesa a favor', t.pontos_fortes)}
+    ${lista('Pesa contra', t.pontos_fracos)}
     ${lista('Requisitos que o currículo não comprova', t.requisitos_nao_comprovados)}
     ${t.palavras_ausentes?.length ? `<h3>Palavras-chave da vaga que faltam</h3><div class="chips">${t.palavras_ausentes.map(p => `<span class="chip nao">${esc(p)}</span>`).join('')}</div>` : ''}
-    ${lista('💡 Como melhorar (sem inventar)', t.sugestoes)}
-    ${t.perguntas?.length ? `<h3>🎤 Perguntas prováveis na entrevista</h3>
+    ${lista('Como melhorar (sem inventar)', t.sugestoes)}
+    ${t.perguntas?.length ? `<h3>Perguntas prováveis na entrevista</h3>
       ${t.perguntas.map(p => `<details class="pergunta"><summary>${esc(p.pergunta)}</summary><p>${esc(p.dica)}</p></details>`).join('')}` : ''}
     <p class="ajuda">Simulação feita por IA: serve de treino, não é garantia do resultado real. Se você editar o currículo, simule de novo.</p>`;
 }
@@ -1847,7 +2186,7 @@ $('triar').onclick = async () => {
   if (!atual) return;
   const botao = $('triar');
   botao.disabled = true;
-  botao.textContent = '🤖 Avaliando…';
+  botao.textContent = 'Avaliando…';
   try {
     // Usa o texto que está na tela, para considerar as edições feitas à mão.
     atual.triagem = await api('/api/triagem', { method: 'POST', body: { id: atual.id, textoCv: $('cv').innerText } });
@@ -1857,7 +2196,7 @@ $('triar').onclick = async () => {
     alert(e.message);
   } finally {
     botao.disabled = false;
-    botao.textContent = '🤖 Simular triagem por IA';
+    botao.textContent = 'Simular triagem por IA';
   }
 };
 
@@ -1878,8 +2217,10 @@ function aplicarLayout(l) {
   layoutAtual = l;
   LAYOUTS.forEach(x => $('cv').classList.toggle('layout-' + x, x === l));
   $('layoutCv').value = l;
+  document.querySelectorAll('[data-layout]').forEach(b => b.classList.toggle('ativo', b.dataset.layout === l));
   try { localStorage.setItem('layoutCv', l); } catch {}
 }
+document.querySelectorAll('[data-layout]').forEach(b => b.onclick = () => aplicarLayout(b.dataset.layout));
 $('layoutCv').onchange = e => aplicarLayout(e.target.value);
 aplicarLayout(layoutAtual);
 
@@ -1940,12 +2281,12 @@ $('baixarWord').onclick = () => {
 async function carregarHistorico() {
   const itens = await api('/api/historico');
   const ul = $('historico');
-  if (!itens.length) { ul.innerHTML = '<li class="vazio">Nenhuma adaptação ainda.</li>'; return; }
+  if (!itens.length) { ul.innerHTML = '<li class="vazio">Nenhuma adaptação ainda. O primeiro currículo a gente nunca esquece.</li>'; return; }
   ul.innerHTML = itens.map(i => `
     <li>
       <button class="abrir" data-id="${i.id}">${esc(i.cargo || 'Vaga')}${i.empresa ? ' — ' + esc(i.empresa) : ''}
         <small>${new Date(i.data).toLocaleString('pt-BR')}</small></button>
-      <button class="apagar" data-id="${i.id}" title="Apagar">🗑</button>
+      <button class="apagar" data-id="${i.id}" title="Apagar" aria-label="Apagar">×</button>
     </li>`).join('');
   ul.querySelectorAll('.abrir').forEach(b => b.onclick = async () => exibir(await api('/api/historico/' + b.dataset.id)));
   ul.querySelectorAll('.apagar').forEach(b => b.onclick = async () => {
@@ -1965,7 +2306,7 @@ const SITUACOES = {
   analise: { nome: 'Em análise', cor: 'azul' },
   entrevista: { nome: 'Entrevista', cor: 'roxo' },
   teste: { nome: 'Teste / prova', cor: 'roxo' },
-  aprovado: { nome: 'Aprovado 🎉', cor: 'verde' },
+  aprovado: { nome: 'Aprovado', cor: 'verde' },
   reprovado: { nome: 'Não passou', cor: 'cinza' },
   sem_resposta: { nome: 'Sem resposta', cor: 'cinza' },
 };
@@ -2019,7 +2360,7 @@ function desenharCandidaturas() {
 
   const cobrar = candidaturas.filter(precisaCobrar);
   $('avisoCobrar').innerHTML = cobrar.length
-    ? `<div class="aviso atencao">⏰ <b>${cobrar.length} candidatura(s) esperando retorno há um tempo.</b> Uma mensagem educada perguntando sobre o processo mostra interesse e costuma ajudar. Use o botão "Mensagem de cobrança".</div>`
+    ? `<div class="aviso atencao"><b>${cobrar.length} candidatura(s) esperando retorno há um tempo.</b> Uma mensagem educada perguntando sobre o processo mostra interesse e costuma ajudar. Use o botão "Mensagem de cobrança".</div>`
     : '';
 
   const lista = candidaturas
@@ -2029,7 +2370,9 @@ function desenharCandidaturas() {
       || (b.dataEnvio || '').localeCompare(a.dataEnvio || ''));
 
   if (!candidaturas.length) {
-    $('listaCand').innerHTML = `<div class="vazio-grande"><p>Nenhuma candidatura ainda.<br><small>Depois de adaptar um currículo, clique em "📨 Marquei como enviada", ou use "+ Nova candidatura".</small></p></div>`;
+    $('listaCand').innerHTML = `<div class="vazio-grande"><div class="curri-fala"><svg class="curri curri-aceno" aria-hidden="true"><use href="#curri"/></svg>
+      <p class="balao"><b>Nenhuma candidatura ainda.</b> O mercado de trabalho nem sabe o que está perdendo.<br>
+      <small>Depois de adaptar um currículo, toque em "Marquei como enviada", ou use "+ Nova candidatura".</small></p></div></div>`;
     return;
   }
   $('listaCand').innerHTML = lista.map(cartaoCandidatura).join('') || '<p class="vazio">Nenhuma candidatura nessa situação.</p>';
@@ -2077,14 +2420,14 @@ function cartaoCandidatura(c) {
         ${Object.entries(SITUACOES).map(([k, v]) => `<option value="${k}" ${k === c.status ? 'selected' : ''}>${v.nome}</option>`).join('')}
       </select>
     </div>
-    ${precisaCobrar(c) ? `<p class="cand-alerta">⏰ Hora de cobrar um retorno</p>`
+    ${precisaCobrar(c) ? `<p class="cand-alerta">Hora de cobrar um retorno</p>`
       : aberto && c.proximoContato ? `<p class="cand-lembrete">Lembrete para cobrar em ${dataBR(c.proximoContato)}</p>` : ''}
     ${c.obs ? `<p class="cand-obs">${esc(c.obs)}</p>` : ''}
     ${linhaTempo ? `<p class="cand-tempo">${linhaTempo}</p>` : ''}
     <div class="cand-acoes">
-      ${aberto ? `<button class="link" data-acao="cobrar">💬 Mensagem de cobrança</button>` : ''}
+      ${aberto ? `<button class="link" data-acao="cobrar">Mensagem de cobrança</button>` : ''}
       ${precisaCobrar(c) ? `<button class="link" data-acao="adiar">Já cobrei, lembrar em 7 dias</button>` : ''}
-      ${c.adaptacaoId ? `<button class="link" data-acao="curriculo">📄 Ver currículo enviado</button>` : ''}
+      ${c.adaptacaoId ? `<button class="link" data-acao="curriculo">Ver currículo enviado</button>` : ''}
       <button class="link" data-acao="editar">Editar</button>
       <button class="link perigo" data-acao="apagar">Apagar</button>
     </div>
@@ -2174,7 +2517,7 @@ $('envioSalvar').onclick = async () => {
       },
     });
     $('envioSalvar').disabled = true;
-    $('envioSalvar').textContent = '✔ Adicionada às candidaturas';
+    $('envioSalvar').textContent = '✔ Adicionada! Boa sorte, vai dar bom';
     $('envioOk').hidden = false;
     carregarCandidaturas();
   } catch (e) { alert(e.message); }
@@ -2210,11 +2553,17 @@ const vazio = {
   formacao: () => ({ curso: '', instituicao: '', situacao: 'Concluído', inicio: '', fim: '' }),
   curso: () => ({ nome: '', instituicao: '', ano: '', horas: '' }),
   idioma: () => ({ idioma: '', nivel: 'Básico' }),
+  atividade: () => ({ tipo: TIPOS_ATIVIDADE[0], titulo: '', onde: '', quando: '', oQueFez: '', resultado: '' }),
 };
+const TIPOS_ATIVIDADE = ['Projeto da escola ou faculdade', 'Apresentação ou palestra', 'Trabalho voluntário',
+  'Igreja ou comunidade', 'Grêmio, representante de turma ou liderança', 'Esporte ou competição',
+  'Ajuda em negócio da família', 'Bico ou trabalho informal', 'Projeto pessoal', 'Outro'];
 const novoRascunho = () => ({
   pessoal: { nome: '', cidade: '', uf: '', telefone: '', email: '', linkedin: '', area: '', cnh: 'Não tenho', disponibilidade: '' },
   semExperiencia: false, experiencias: [vazio.experiencia()], formacao: [vazio.formacao()], cursos: [],
-  ferramentas: '', idiomas: [], comportamentais: [], outraComp: '', projetos: '', voluntariado: '', outras: '',
+  ferramentas: '', idiomas: [], comportamentais: [], outraComp: '', atividades: [], outras: '',
+  projetos: '', voluntariado: '', // versões antigas guardavam texto livre aqui
+  respostasExtras: [], // respostas às perguntas que a IA faz depois de gerar
 });
 
 let R = novoRascunho();
@@ -2329,13 +2678,33 @@ const PASSOS = [
       ${campo('Outra que não está na lista', 'outraComp', { ph: 'opcional' })}`,
   },
   {
-    titulo: 'Extras',
-    texto: 'Isso faz diferença, principalmente para quem está começando. Pode deixar em branco o que não tiver.',
-    html: () => `<div class="m-grade">
-      ${campo('Projetos (escola, faculdade, pessoais)', 'projetos', { area: true, largo: true, ph: 'Ex.: fiz um site para a loja da minha tia; organizei a feira de ciências da escola' })}
-      ${campo('Trabalho voluntário', 'voluntariado', { area: true, largo: true, ph: 'Ex.: ajudo na igreja organizando eventos; voluntário na campanha do agasalho' })}
-      ${campo('Outras informações importantes', 'outras', { area: true, largo: true, ph: 'Ex.: tenho moto própria; disponibilidade para viagens' })}
-    </div>`,
+    titulo: 'Atividades e projetos',
+    texto: 'Para quem está começando, é aqui que o currículo ganha força. Trabalhos da escola, apresentações, voluntariado, igreja, esporte, ajuda no negócio da família... Tudo conta. Quanto mais detalhes você der, melhor o currículo fica (e nada é inventado).',
+    html: () => `
+      ${R.atividades.map((x, i) => bloco('Atividade', i, 'atividades', `
+        <label class="m-campo">Tipo
+          <select data-c="atividades.${i}.tipo">${TIPOS_ATIVIDADE.map(t => `<option ${x.tipo === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        </label>
+        ${campo('Nome ou tema', `atividades.${i}.titulo`, { obrig: true, ph: 'Ex.: Apresentação sobre o Setembro Amarelo' })}
+        ${campo('Onde', `atividades.${i}.onde`, { ph: 'Ex.: EEM Dom José, igreja do bairro' })}
+        ${campo('Quando', `atividades.${i}.quando`, { ph: 'Ex.: 2024' })}
+        ${campo('O que você fez, exatamente?', `atividades.${i}.oQueFez`, { area: true, largo: true, linhas: 4,
+          ph: 'Ex.: pesquisei sobre o tema, montei os slides no Canva e apresentei com mais 3 colegas para as turmas do 1º ano, umas 120 pessoas',
+          dica: 'Conte o que VOCÊ fez, com quem, para quem e usando o quê. Números ajudam muito (quantas pessoas, quanto tempo).' })}
+        ${campo('Teve algum resultado ou reconhecimento?', `atividades.${i}.resultado`, { area: true, largo: true, linhas: 2,
+          ph: 'Ex.: a coordenação pediu para apresentarmos também no turno da noite; ganhamos nota máxima' })}
+      `)).join('')}
+      <button type="button" class="btn secundario" data-adicionar="atividades">+ Adicionar atividade ou projeto</button>
+      ${R.projetos.trim() ? campo('Projetos (escrito antes)', 'projetos', { area: true, largo: true }) : ''}
+      ${R.voluntariado.trim() ? campo('Trabalho voluntário (escrito antes)', 'voluntariado', { area: true, largo: true }) : ''}
+      <div class="m-sub">Outras informações</div>
+      ${campo('Algo mais que um recrutador deveria saber?', 'outras', { area: true, largo: true, ph: 'Ex.: tenho moto própria; moro perto do centro; disponibilidade para viagens' })}`,
+    validar: () => {
+      const semDetalhe = R.atividades.find(x => x.titulo.trim() && !x.oQueFez.trim());
+      if (semDetalhe) return `Conte o que você fez em "${semDetalhe.titulo}". É esse detalhe que chama a atenção do RH.`;
+      if (R.atividades.some(x => !x.titulo.trim())) return 'Dê um nome para cada atividade (ou remova as que estiverem vazias).';
+      return false;
+    },
   },
   {
     titulo: 'Revisar e gerar',
@@ -2372,7 +2741,22 @@ function paraTexto(r) {
   add('PROGRAMAS, SISTEMAS E CONHECIMENTOS', r.ferramentas);
   add('IDIOMAS', r.idiomas.filter(x => x.idioma.trim()).map(x => `${x.idioma} – ${x.nivel}`).join('; '));
   add('COMPETÊNCIAS COMPORTAMENTAIS', [...r.comportamentais, r.outraComp].filter(s => s && s.trim()).join('; '));
+  const ativ = (r.atividades || []).filter(x => x.titulo.trim());
+  if (ativ.length) {
+    l.push('', 'ATIVIDADES E PROJETOS:');
+    ativ.forEach((x, i) => {
+      l.push(`${i + 1}) ${x.tipo}: ${x.titulo.trim()}${x.onde.trim() ? ' | Onde: ' + x.onde.trim() : ''}${x.quando.trim() ? ' | Quando: ' + x.quando.trim() : ''}`);
+      if (x.oQueFez.trim()) l.push(`   O que fez: ${x.oQueFez.trim()}`);
+      if (x.resultado.trim()) l.push(`   Resultado/reconhecimento: ${x.resultado.trim()}`);
+    });
+    l.push('');
+  }
   add('PROJETOS', r.projetos); add('TRABALHO VOLUNTÁRIO', r.voluntariado); add('OUTRAS INFORMAÇÕES', r.outras);
+  const extras = (r.respostasExtras || []).filter(x => x.resposta.trim());
+  if (extras.length) {
+    l.push('', 'MAIS INFORMAÇÕES (respostas da pessoa às perguntas da IA):');
+    extras.forEach(x => l.push(`- Pergunta: ${x.pergunta}`, `  Resposta: ${x.resposta.trim()}`));
+  }
   return l.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
@@ -2383,7 +2767,7 @@ function desenharPasso() {
     `<button type="button" class="m-ind ${i === passo ? 'atual' : i < passo ? 'feito' : ''}" data-ir="${i}" title="${x.titulo}"><span>${i + 1}</span>${x.titulo}</button>`).join('');
   $('mConteudo').innerHTML = `<h2>${P.titulo}</h2><p class="ajuda">${P.texto}</p>${P.html()}<p id="mErro" class="m-erro"></p>`;
   $('mVoltar').hidden = passo === 0;
-  $('mProximo').textContent = passo === PASSOS.length - 1 ? '✨ Gerar meu currículo' : 'Próximo →';
+  $('mProximo').textContent = passo === PASSOS.length - 1 ? 'Gerar meu currículo' : 'Próximo →';
   $('mConteudo').scrollTop = 0;
 }
 
@@ -2403,7 +2787,7 @@ $('mConteudo').addEventListener('change', e => {
 });
 $('mConteudo').addEventListener('click', e => {
   const add = e.target.dataset.adicionar, rem = e.target.dataset.remover;
-  if (add) { R[add].push(vazio[{ experiencias: 'experiencia', formacao: 'formacao', cursos: 'curso', idiomas: 'idioma' }[add]]()); guardar(); desenharPasso(); }
+  if (add) { R[add].push(vazio[{ experiencias: 'experiencia', formacao: 'formacao', cursos: 'curso', idiomas: 'idioma', atividades: 'atividade' }[add]]()); guardar(); desenharPasso(); }
   if (rem) { const [lista, i] = rem.split('.'); R[lista].splice(+i, 1); guardar(); desenharPasso(); }
 });
 $('mIndicador').addEventListener('click', e => {
@@ -2429,7 +2813,7 @@ $('mProximo').onclick = async () => {
     $('mErro').textContent = e.message;
   } finally {
     botao.disabled = false;
-    botao.textContent = '✨ Gerar meu currículo';
+    botao.textContent = 'Gerar meu currículo';
   }
 };
 
@@ -2455,22 +2839,50 @@ function desenharBase(reg) {
   const r = reg.resultado;
   const lista = itens => itens?.length ? `<ul>${itens.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '';
   $('analise').innerHTML = `
-    <h3>✨ Seu currículo está pronto</h3>
+    <h3>Seu currículo está pronto. Ficou um charme!</h3>
     <p class="ajuda">Revise e edite direto no currículo abaixo se quiser. Escolha o layout, baixe em PDF ou Word e, se gostar,
       use como seu currículo base: aí é só mandar as fotos das vagas para adaptar.</p>
     <div class="barra">
-      <button id="usarBase" class="btn">📌 Usar como meu currículo base</button>
-      <button id="editarRespostas" class="btn secundario">✏️ Voltar e editar respostas</button>
+      <button id="usarBase" class="btn">Usar como meu currículo base</button>
+      <button id="editarRespostas" class="btn secundario">Voltar e editar respostas</button>
     </div>
-    ${r.perguntas?.length ? `<h3>🔎 Responda para deixar ainda mais forte</h3>
-      <p class="ajuda">Se souber alguma resposta, clique em "Voltar e editar respostas", acrescente e gere de novo.</p>${lista(r.perguntas)}` : ''}
-    ${r.dicas?.length ? `<h3>💡 Dicas</h3>${lista(r.dicas)}` : ''}`;
+    ${r.perguntas?.length ? `<h3>Responda e deixe o currículo mais forte</h3>
+      <p class="ajuda">Responda o que souber (pode pular o resto) e toque em "Melhorar meu currículo". A IA usa suas respostas, sem inventar nada.</p>
+      <div class="perguntas-ia">${r.perguntas.map((p, i) => `
+        <label class="m-campo">${esc(p)}<textarea rows="2" data-pergunta="${i}" placeholder="Sua resposta (opcional)"></textarea></label>`).join('')}
+      </div>
+      <button id="melhorarCv" class="btn">Melhorar meu currículo</button>
+      <p id="melhorarStatus" class="chave-status"></p>` : ''}
+    ${r.dicas?.length ? `<h3>Dicas</h3>${lista(r.dicas)}` : ''}`;
+  if (r.perguntas?.length) $('melhorarCv').onclick = async () => {
+    const novas = [...$('analise').querySelectorAll('[data-pergunta]')]
+      .map(t => ({ pergunta: r.perguntas[+t.dataset.pergunta], resposta: t.value.trim() }))
+      .filter(x => x.resposta);
+    if (!novas.length) { $('melhorarStatus').className = 'chave-status erro'; $('melhorarStatus').textContent = 'Responda pelo menos uma pergunta.'; return; }
+    R.respostasExtras = [...(R.respostasExtras || []), ...novas];
+    guardar();
+    const botao = $('melhorarCv');
+    botao.disabled = true;
+    botao.textContent = 'Melhorando… (uns 30 segundos)';
+    $('melhorarStatus').className = 'chave-status';
+    $('melhorarStatus').textContent = '';
+    try {
+      const novo = await api('/api/montar', { method: 'POST', body: { respostas: paraTexto(R) } });
+      exibir(novo);
+      carregarHistorico();
+    } catch (e) {
+      $('melhorarStatus').className = 'chave-status erro';
+      $('melhorarStatus').textContent = e.message;
+      botao.disabled = false;
+      botao.textContent = 'Melhorar meu currículo';
+    }
+  };
   $('usarBase').onclick = async () => {
     if ($('textoCv').value.trim() && !confirm('Isso substitui o currículo base que está no passo 2. Continuar?')) return;
     $('textoCv').value = $('cv').innerText.replace(/\n{3,}/g, '\n\n').trim();
     await api('/api/curriculo', { method: 'POST', body: { texto: $('textoCv').value } });
     $('cvStatus').textContent = '✔ Currículo salvo';
-    $('usarBase').textContent = '✔ Agora é o seu currículo base';
+    $('usarBase').textContent = '✔ Salvo! Agora é só mandar as vagas';
     $('usarBase').disabled = true;
   };
   $('editarRespostas').onclick = () => abrirMontador(PASSOS.length - 1);
