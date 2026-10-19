@@ -976,7 +976,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
     </section>
   </main>
 
-  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0314</span></footer>
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0334</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -1434,6 +1434,103 @@ else raiz.Validacao = exportar;
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
+  <script>/* compartilhado/ia.js */
+// Chamada à IA do Google (Gemini) com troca automática de modelo.
+// Usado pelo servidor (Node) e pela versão online (navegador): uma correção aqui vale para os dois.
+(function (raiz) {
+
+const MODELOS_PADRAO = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
+const TEMPO_LIMITE_MS = 45000;
+const pausados = new Map(); // modelo -> até quando evitar (sobrecarga/cota)
+
+// Lista modelos "flash" disponíveis na conta, caso os padrões tenham sido aposentados.
+async function modelosDisponiveis(chave) {
+  try {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', {
+      headers: { 'x-goog-api-key': chave },
+    });
+    const j = await r.json();
+    return (j.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => m.name.replace('models/', ''))
+      .filter(n => /flash/.test(n) && !/(image|tts|live|audio|thinking|exp|preview)/.test(n))
+      .sort().reverse()
+      .sort((a, b) => /lite/.test(a) - /lite/.test(b)); // versões "lite" são mais fracas: só em último caso
+  } catch { return []; }
+}
+
+// Sem chave, o pedido vai pelo intermediário (modo fácil), que acrescenta a chave do dono do site.
+async function chamarGemini(chave, modelo, partes, esquema, urlIntermediario) {
+  const url = chave
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`
+    : `${urlIntermediario}/gerar?modelo=${encodeURIComponent(modelo)}`;
+  let r;
+  try {
+    r = await fetch(url, {
+      method: 'POST',
+      headers: chave ? { 'Content-Type': 'application/json', 'x-goog-api-key': chave } : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: partes }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: esquema },
+      }),
+      signal: AbortSignal.timeout(TEMPO_LIMITE_MS), // modelos sobrecarregados às vezes nunca respondem
+    });
+  } catch {
+    const semInternet = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const e = new Error(semInternet ? 'Sem internet no aparelho.' : `O modelo ${modelo} não respondeu a tempo.`);
+    e.status = 504;
+    throw e;
+  }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const e = new Error(j.error?.message || `Erro ${r.status} da API do Gemini`);
+    e.status = r.status;
+    throw e;
+  }
+  const texto = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+  if (!texto) throw new Error('A IA não retornou conteúdo. Tente de novo.');
+  try {
+    return JSON.parse(texto);
+  } catch {
+    // Resposta cortada no meio (passou do tamanho máximo): 500 faz tentar o próximo modelo.
+    const e = new Error('A resposta da IA veio incompleta. Tente de novo.');
+    e.status = 500;
+    throw e;
+  }
+}
+
+// Tenta o modelo escolhido; se não existir mais, estourar a cota ou vier cortado, tenta os outros.
+async function gerarComChave(chave, modeloPreferido, partes, esquema) {
+  let fila = [modeloPreferido || MODELOS_PADRAO[0], ...MODELOS_PADRAO];
+  // Modelos que falharam há pouco vão para o fim da fila, para não esperar por eles de novo.
+  const agora = Date.now();
+  fila.sort((a, b) => ((pausados.get(a) || 0) > agora) - ((pausados.get(b) || 0) > agora));
+  let ultimoErro, buscouLista = false;
+  const tentados = new Set();
+  while (fila.length) {
+    const modelo = fila.shift();
+    if (tentados.has(modelo)) continue;
+    tentados.add(modelo);
+    try {
+      return { resultado: await chamarGemini(chave, modelo, partes, esquema), modelo };
+    } catch (e) {
+      ultimoErro = e;
+      if ([429, 503, 504].includes(e.status)) pausados.set(modelo, Date.now() + 5 * 60 * 1000);
+      if (e.status === 400 && /api key/i.test(e.message)) throw new Error('A chave do Gemini é inválida. Confira no passo 1.');
+      if (![404, 429, 500, 503, 504].includes(e.status)) break;
+      if (!fila.length && !buscouLista) { buscouLista = true; fila = await modelosDisponiveis(chave); }
+    }
+  }
+  if (ultimoErro?.status === 429) throw new Error('Limite gratuito da IA atingido por agora. Espere um minuto e tente de novo.');
+  throw ultimoErro;
+}
+
+const exportar = { MODELOS_PADRAO, chamarGemini, gerarComChave };
+if (typeof module !== 'undefined' && module.exports) module.exports = exportar;
+else raiz.IA = exportar;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
   <script>/* local-api.js */
 // Versão online (sem servidor): faz no próprio navegador o que o server.js faz no PC.
 // Cada pessoa usa a própria chave do Gemini, e tudo fica salvo só neste aparelho (localStorage).
@@ -1455,9 +1552,7 @@ else raiz.Validacao = exportar;
   const hojeLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
   // ---------- Gemini direto do navegador ----------
-  const MODELOS_PADRAO = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
-  const TEMPO_LIMITE_MS = 45000;
-  const pausados = new Map();
+  const { MODELOS_PADRAO, chamarGemini, gerarComChave } = window.IA;
 
   // ---------- Modo fácil: quem não tem chave usa a do dono do site, por um intermediário na Cloudflare ----------
   const URL_MODO_FACIL = 'https://adaptador-curriculo.henmournwolf.workers.dev';
@@ -1466,69 +1561,11 @@ else raiz.Validacao = exportar;
   const usoFacil = () => { const u = ler('usoFacil', {}); return u.dia === hojeLocal() ? u.n : 0; };
   const contarUsoFacil = () => salvar('usoFacil', { dia: hojeLocal(), n: usoFacil() + 1 });
 
-  async function modelosDisponiveis(chave) {
-    try {
-      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': chave } });
-      const j = await r.json();
-      return (j.models || [])
-        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-        .map(m => m.name.replace('models/', ''))
-        .filter(n => /flash/.test(n) && !/(image|tts|live|audio|thinking|exp|preview)/.test(n))
-        .sort().reverse()
-        .sort((a, b) => /lite/.test(a) - /lite/.test(b));
-    } catch { return []; }
-  }
-
-  // chave = null usa o modo fácil (intermediário com a chave do dono do site)
-  async function chamarGemini(chave, modelo, partes, esquema) {
-    const url = chave
-      ? `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`
-      : `${URL_MODO_FACIL}/gerar?modelo=${encodeURIComponent(modelo)}`;
-    let r;
-    try {
-      r = await fetch(url, {
-        method: 'POST',
-        headers: chave ? { 'Content-Type': 'application/json', 'x-goog-api-key': chave } : { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: partes }], generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: esquema } }),
-        signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
-      });
-    } catch {
-      const e = new Error(navigator.onLine === false ? 'Sem internet no aparelho.' : `O modelo ${modelo} não respondeu a tempo.`);
-      e.status = 504;
-      throw e;
-    }
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) { const e = new Error(j.error?.message || `Erro ${r.status} da API do Gemini`); e.status = r.status; throw e; }
-    const texto = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
-    if (!texto) throw new Error('A IA não retornou conteúdo. Tente de novo.');
-    return JSON.parse(texto);
-  }
-
   async function gerar(partes, esquema) {
     const cfg = ler('config', {});
     if (!cfg.apiKey && !URL_MODO_FACIL) throw new Error('Configure sua chave gratuita do Google Gemini primeiro (passo 1).');
     if (!cfg.apiKey) return gerarModoFacil(partes, esquema);
-    let fila = [cfg.modelo || MODELOS_PADRAO[0], ...MODELOS_PADRAO];
-    const agora = Date.now();
-    fila.sort((a, b) => ((pausados.get(a) || 0) > agora) - ((pausados.get(b) || 0) > agora));
-    let ultimoErro, buscouLista = false;
-    const tentados = new Set();
-    while (fila.length) {
-      const modelo = fila.shift();
-      if (tentados.has(modelo)) continue;
-      tentados.add(modelo);
-      try {
-        return { resultado: await chamarGemini(cfg.apiKey, modelo, partes, esquema), modelo };
-      } catch (e) {
-        ultimoErro = e;
-        if ([429, 503, 504].includes(e.status)) pausados.set(modelo, Date.now() + 5 * 60 * 1000);
-        if (e.status === 400 && /api key/i.test(e.message)) throw new Error('A chave do Gemini é inválida. Confira no passo 1.');
-        if (![404, 429, 500, 503, 504].includes(e.status)) break;
-        if (!fila.length && !buscouLista) { buscouLista = true; fila = await modelosDisponiveis(cfg.apiKey); }
-      }
-    }
-    if (ultimoErro?.status === 429) throw new Error('Limite gratuito da IA atingido por agora. Espere um minuto e tente de novo.');
-    throw ultimoErro;
+    return gerarComChave(cfg.apiKey, cfg.modelo, partes, esquema);
   }
 
   async function gerarModoFacil(partes, esquema) {
@@ -1538,7 +1575,7 @@ else raiz.Validacao = exportar;
     let ultimoErro;
     for (const modelo of MODELOS_MODO_FACIL) {
       try {
-        const resultado = await chamarGemini(null, modelo, partes, esquema);
+        const resultado = await chamarGemini(null, modelo, partes, esquema, URL_MODO_FACIL);
         contarUsoFacil();
         return { resultado, modelo };
       } catch (e) {
@@ -2289,7 +2326,8 @@ function abrirConfirmacao(req) {
 }
 
 // Condições da vaga que são só "sim ou não": não precisam de explicação.
-const CONDICAO = /presencial|viage|viaj|hor[aá]rio|turno|escala|noturn|fins? de semana|feriado|plant[aã]o|disponibilidade|dispon[ií]vel|cnh|habilita[cç][aã]o|carteira de motorista|ve[ií]culo|moto pr[oó]pria|carro pr[oó]prio|residir|morar|resid[eê]ncia|regi[aã]o|proximidade|in[ií]cio imediato|mudan[cç]a de cidade|home office|h[ií]brido|remoto|maior de 18|clt|\bpj\b|tempo integral|meio per[ií]odo/i;
+// Expressões completas: "remoto" sozinho pegaria "suporte remoto", que é habilidade, não condição.
+const CONDICAO = /presencial|viage|viaj|hor[aá]rio|turno|\bescala\b|noturn|fins? de semana|feriado|plant[aã]o|disponibilidade|dispon[ií]vel|cnh|habilita[cç][aã]o|carteira de motorista|ve[ií]culo pr[oó]prio|moto pr[oó]pria|carro pr[oó]prio|residir|morar|resid[eê]ncia|regi[aã]o|proximidade|in[ií]cio imediato|mudan[cç]a de cidade|home office|h[ií]brido|trabalho remoto|100% remoto|modelo remoto|maior de 18|clt|\bpj\b|tempo integral|meio per[ií]odo/i;
 const ehCondicao = texto => CONDICAO.test(String(texto || ''));
 
 async function adicionarAoCurriculo(req, desc) {
