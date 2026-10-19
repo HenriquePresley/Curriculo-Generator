@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adaptador de Currículo</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+  <header class="topo">
+    <h1>Adaptador de Currículo</h1>
+    <p>Mande o print da vaga e receba seu currículo adaptado, só com informações que estão no seu currículo.</p>
+    <nav class="abas-app">
+      <button class="aba-app ativa" data-view="viewAdaptar">📄 Adaptar currículo</button>
+      <button class="aba-app" data-view="viewCandidaturas">📋 Minhas candidaturas <span id="badgeCobrar" class="badge" hidden></span></button>
+    </nav>
+  </header>
+
+  <main class="layout candidaturas" id="viewCandidaturas" hidden>
+    <section class="cand-coluna">
+      <div class="cand-topo">
+        <div id="contadores" class="contadores"></div>
+        <button id="novaCand" class="btn">+ Nova candidatura</button>
+      </div>
+      <div id="avisoCobrar"></div>
+
+      <form id="formCand" class="cartao form-cand" hidden>
+        <h2 id="formCandTitulo">Nova candidatura</h2>
+        <div class="grade-form">
+          <label>Cargo<input name="cargo" type="text" placeholder="Ex.: Técnico de Suporte N1"></label>
+          <label>Empresa<input name="empresa" type="text" placeholder="Ex.: Provedor X"></label>
+          <label>Por onde enviou
+            <select name="canal">
+              <option>Gupy</option><option>LinkedIn</option><option>WhatsApp</option><option>E-mail</option>
+              <option>Site da empresa</option><option>Presencial</option><option>Indicação</option><option>Outro</option>
+            </select>
+          </label>
+          <label>Contato do RH (telefone ou e-mail)<input name="contato" type="text"></label>
+          <label>Link da vaga<input name="link" type="text" placeholder="opcional"></label>
+          <label>Data do envio<input name="dataEnvio" type="date"></label>
+          <label>Situação<select name="status"></select></label>
+          <label>Lembrar de cobrar em<input name="proximoContato" type="date"></label>
+        </div>
+        <label>Observações<textarea name="obs" rows="2" placeholder="Ex.: entrevista marcada dia 25 às 14h, falar com a Ana"></textarea></label>
+        <input type="hidden" name="adaptacaoId">
+        <div class="barra">
+          <button type="submit" class="btn">Salvar</button>
+          <button type="button" id="cancelarCand" class="btn secundario">Cancelar</button>
+        </div>
+      </form>
+
+      <div id="listaCand" class="lista-cand"></div>
+    </section>
+  </main>
+
+  <main class="layout" id="viewAdaptar">
+    <aside class="painel">
+
+      <section class="cartao" id="cartaoChave">
+        <h2><span class="num">1</span> Chave da IA gratuita</h2>
+        <div id="chaveOk" class="ok" hidden>✔ Chave configurada. <button class="link" id="trocarChave">trocar</button></div>
+        <div id="chaveForm">
+          <p class="ajuda">Usa o Google Gemini, gratuito. Crie a chave em
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>
+            (login com sua conta Google → “Create API key”) e cole aqui.</p>
+          <p class="ajuda so-online">🔒 Versão online: sua chave, seu currículo e seu histórico ficam salvos só neste aparelho. Ninguém mais tem acesso.</p>
+          <input id="apiKey" type="password" placeholder="Cole a chave aqui (começa com AIza...)">
+          <button id="salvarChave" class="btn">Salvar chave</button>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <h2><span class="num">2</span> Meu currículo</h2>
+        <p class="ajuda">Envie seu currículo (PDF, Word ou TXT) ou cole o texto. Confira se o texto extraído ficou completo: é a única fonte que a IA pode usar.</p>
+        <button id="abrirMontador" class="btn montar-btn" type="button">✨ Não tenho currículo: montar do zero</button>
+        <label class="btn secundario arquivo">Escolher arquivo
+          <input type="file" id="arquivoCv" accept=".pdf,.docx,.txt" hidden>
+        </label>
+        <textarea id="textoCv" rows="10" placeholder="Texto do seu currículo..."></textarea>
+        <button id="salvarCv" class="btn">Salvar currículo</button>
+        <span id="cvStatus" class="status"></span>
+      </section>
+
+      <section class="cartao">
+        <h2><span class="num">3</span> A vaga</h2>
+        <div id="zona" class="zona" tabindex="0">
+          <strong>Clique, arraste ou cole (Ctrl+V)</strong>
+          <span>a foto ou print da vaga — pode ser mais de uma</span>
+          <input type="file" id="arquivoVaga" accept="image/*" multiple hidden>
+        </div>
+        <div id="miniaturas" class="miniaturas"></div>
+        <details>
+          <summary>Ou cole o texto da vaga</summary>
+          <textarea id="textoVaga" rows="5" placeholder="Texto da vaga (opcional se enviou a foto)"></textarea>
+        </details>
+        <button id="adaptar" class="btn grande">Adaptar meu currículo</button>
+      </section>
+
+      <section class="cartao">
+        <h2>Histórico</h2>
+        <ul id="historico" class="historico"><li class="vazio">Nenhuma adaptação ainda.</li></ul>
+      </section>
+    </aside>
+
+    <section class="resultado" id="resultado">
+      <div class="vazio-grande" id="placeholder">
+        <p>Seu currículo adaptado aparece aqui.</p>
+      </div>
+
+      <div id="carregando" class="carregando" hidden>
+        <div class="giro"></div>
+        <p><span id="msgCarregando">Lendo a vaga…</span><br><small>leva uns 20–40 segundos</small></p>
+      </div>
+
+      <div id="escolha" class="cartao escolha" hidden>
+        <h2 id="escolhaTitulo"></h2>
+        <div id="listaVagas"></div>
+        <div class="barra">
+          <button id="adaptarEscolhidas" class="btn">Adaptar para as selecionadas</button>
+          <button id="todasVagas" class="btn secundario">Marcar todas</button>
+        </div>
+        <p class="ajuda">Cada vaga marcada gera um currículo próprio, que fica salvo no histórico.</p>
+      </div>
+
+      <div id="saida" hidden>
+        <div id="abas" class="abas" hidden></div>
+        <div class="barra">
+          <button id="baixarPdf" class="btn">Salvar PDF</button>
+          <button id="baixarWord" class="btn secundario">Baixar Word (.docx)</button>
+          <button id="triar" class="btn secundario">🤖 Simular triagem por IA</button>
+          <button id="marcarEnviada" class="btn secundario">📨 Marquei como enviada</button>
+          <label class="check">Layout
+            <select id="layoutCv">
+              <option value="a">Clássico (recomendado)</option>
+              <option value="b">Minimalista</option>
+              <option value="c">Tradicional</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="mostrarMarcas" checked> Destacar trechos a conferir</label>
+        </div>
+
+        <p class="ajuda so-online dica-pdf">📱 <b>Salvar PDF no celular:</b> toque em "Salvar PDF" e, na tela que abrir, escolha <b>"Salvar como PDF"</b> como impressora (no iPhone: toque em compartilhar e depois em "Salvar em Arquivos").</p>
+        <div id="envioBox" class="cartao envio-box" hidden>
+          <b>Onde você enviou este currículo?</b>
+          <div class="envio-linha">
+            <select id="envioCanal">
+              <option>Gupy</option><option>LinkedIn</option><option>WhatsApp</option><option>E-mail</option>
+              <option>Site da empresa</option><option>Presencial</option><option>Indicação</option><option>Outro</option>
+            </select>
+            <input id="envioContato" type="text" placeholder="Contato do RH (opcional)">
+            <button id="envioSalvar" class="btn">Adicionar às candidaturas</button>
+          </div>
+          <p class="ajuda">Eu te lembro de cobrar um retorno em 7 dias.</p>
+          <p id="envioOk" hidden><button class="link" id="irCand">Ver minhas candidaturas →</button></p>
+        </div>
+        <div id="verificacao"></div>
+        <div id="analise" class="cartao analise"></div>
+        <div id="triagem" class="cartao triagem" hidden></div>
+
+        <p class="ajuda dica-edicao">Você pode clicar no currículo abaixo e editar qualquer texto antes de salvar.</p>
+        <article id="cv" class="cv layout-a com-marcas" contenteditable="true" spellcheck="true"></article>
+      </div>
+    </section>
+  </main>
+
+  <div id="montador" class="montador" hidden>
+    <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
+      <div class="m-topo">
+        <b>Montar currículo do zero</b>
+        <div><button type="button" id="mRecomecar" class="link">recomeçar</button>
+          <button type="button" id="mFechar" class="m-fechar" title="Fechar (suas respostas ficam salvas)">×</button></div>
+      </div>
+      <div id="mIndicador" class="m-indicador"></div>
+      <div id="mConteudo" class="m-conteudo"></div>
+      <div class="m-rodape">
+        <button type="button" id="mVoltar" class="btn secundario">← Voltar</button>
+        <button type="button" id="mProximo" class="btn">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="compartilhado/prompt.js"></script>
+  <script src="compartilhado/validar.js"></script>
+  <script src="local-api.js"></script>
+  <script src="docx.js"></script>
+  <script src="app.js"></script>
+  <script src="candidaturas.js"></script>
+  <script src="montar.js"></script>
+</body>
+</html>
