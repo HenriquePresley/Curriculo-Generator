@@ -583,6 +583,23 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
   .credito { transform: none; }
 }
 
+/* Celular: enquanto não há resultado, a apresentação (Curri + como funciona) vem antes do formulário */
+@media (max-width: 900px) {
+  .layout:has(#placeholder:not([hidden])) .resultado { order: -1; margin-bottom: 18px; }
+  .como-funciona h2 { margin-top: 0; }
+  .como-funciona > p { margin-bottom: 16px; font-size: 15px; }
+  .como-funciona ol { margin-bottom: 16px; gap: 10px; }
+  .como-funciona li { flex-direction: row; align-items: center; gap: 12px; padding: 11px 13px; box-shadow: 3px 3px 0 var(--texto); }
+  .como-funciona li .n { width: 32px; height: 32px; font-size: 15px; flex: none; }
+  .como-funciona li b { font-size: 15.5px; margin-bottom: 0; }
+  .como-funciona li span { font-size: 13.5px; }
+  .garantia { font-size: 14px; padding: 12px 14px; }
+}
+.aviso.ok { font-weight: 400; }
+.link-chave-propria { font-size: 13.5px; color: var(--suave); text-align: center; margin: 4px 0 20px; }
+#privacidadeFacil { text-align: left; margin: 0 4px 10px; }
+#privacidadeFacil summary { text-align: center; }
+
 /* ===== Aviso "pronto" e troca de layout ===== */
 .aviso-pronto {
   display: flex; align-items: center; gap: 14px; background: var(--amarelo); border: 2.5px solid var(--texto);
@@ -656,7 +673,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
       </div>
       <div class="lado-topo">
         <a class="credito" href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">
-          <span class="credito-selos"><span>✓ IA grátis</span><span>✓ Zero mentira</span><span>✓ Seus dados são seus</span></span>
+          <span class="credito-selos"><span>✓ IA grátis</span><span>✓ Zero mentira</span><span>✓ Nada fica salvo no site</span></span>
           <span class="credito-autor">Feito por <b>Henrique Presley</b>, que também tá procurando emprego.
             <span class="me-contrata">Me contrata? →</span></span>
         </a>
@@ -710,7 +727,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
 
       <section class="cartao" id="cartaoChave">
         <h2><span class="num">1</span> Ativar a IA grátis</h2>
-        <div id="chaveOk" class="ok" hidden>✔ IA ativada. <button class="link" id="trocarChave">trocar chave</button></div>
+        <div id="chaveOk" class="ok" hidden><span id="chaveOkTexto">✔ IA ativada.</span> <button class="link" id="trocarChave">trocar chave</button></div>
         <div id="chaveForm">
           <p class="ajuda">Leva 1 minuto e é <b>de graça</b>. Você só precisa de uma conta Google (a mesma do Gmail ou do YouTube).</p>
           <details class="o-que-e">
@@ -739,7 +756,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
       </section>
 
       <section class="cartao">
-        <h2><span class="num">2</span> Meu currículo</h2>
+        <h2><span class="num" data-num-facil="1">2</span> Meu currículo</h2>
         <p class="ajuda">Envie seu currículo (PDF, Word ou TXT) ou cole o texto. Confira se o texto extraído ficou completo: é a única fonte que a IA pode usar.</p>
         <button id="abrirMontador" class="btn montar-btn" type="button">Não tenho currículo: montar do zero</button>
         <label class="btn secundario arquivo">Escolher arquivo
@@ -751,7 +768,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
       </section>
 
       <section class="cartao">
-        <h2><span class="num">3</span> A vaga</h2>
+        <h2><span class="num" data-num-facil="2">3</span> A vaga</h2>
         <div id="zona" class="zona" tabindex="0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
           <strong>Toque para escolher a foto da vaga</strong>
@@ -770,6 +787,16 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
         <h2>Adaptações anteriores</h2>
         <ul id="historico" class="historico"><li class="vazio">Nenhuma adaptação ainda. O primeiro currículo a gente nunca esquece.</li></ul>
       </section>
+      <details id="privacidadeFacil" class="o-que-e" hidden>
+        <summary>Como funciona o modo grátis?</summary>
+        <p>Você não precisa configurar nada: o app usa a IA do Google pela conta do criador do site, com um limite por dia.
+          Seu currículo fica salvo só no seu aparelho; para gerar o resultado, o texto passa pela IA do Google e nada fica
+          guardado no site. No plano gratuito, o Google pode usar esses textos para melhorar os produtos dele. Se preferir,
+          use sua própria chave: aí vai direto para a sua conta, sem limite do app.</p>
+      </details>
+      <p class="link-chave-propria" id="linkChavePropria" hidden>
+        Usa muito? <button type="button" class="link" id="mostrarChavePropria">Use sua própria chave grátis, sem limite</button>
+      </p>
     </aside>
 
     <section class="resultado" id="resultado">
@@ -782,9 +809,9 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
           <h2>Uma vaga, um currículo <em>pensado para ela</em>.</h2>
           <p>Mande a foto do anúncio e o app reescreve o seu currículo com os termos que a vaga pede, na ordem que o recrutador procura. Tudo com base no que você já tem.</p>
           <ol>
-            <li><span class="n">1</span><div><b>Ative a IA</b><span>Uma vez só, com sua conta Google. É grátis e leva um minuto.</span></div></li>
-            <li><span class="n">2</span><div><b>Envie seu currículo</b><span>PDF, Word ou texto. Se não tiver um, o app monta com você, pergunta por pergunta.</span></div></li>
-            <li><span class="n">3</span><div><b>Mande o print da vaga</b><span>Você recebe o currículo adaptado, quanto ele combina com a vaga e o que devem perguntar na entrevista.</span></div></li>
+            <li><span class="n">1</span><div><b>Envie seu currículo</b><span>PDF, Word ou texto. Se não tiver um, o app monta com você, pergunta por pergunta.</span></div></li>
+            <li><span class="n">2</span><div><b>Mande o print da vaga</b><span>Pode ser foto, print ou o texto do anúncio. Tem várias vagas no mesmo print? Você escolhe.</span></div></li>
+            <li><span class="n">3</span><div><b>Baixe e mande</b><span>Currículo adaptado em PDF ou Word, quanto ele combina com a vaga e o que devem perguntar na entrevista.</span></div></li>
           </ol>
           <p class="garantia">Nada é inventado: a IA só usa o que está no seu currículo, e cada frase é conferida com o original. Se ela tentar te dar um MBA em Harvard, a gente pega.</p>
         </div>
@@ -862,7 +889,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
     </section>
   </main>
 
-  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0211</span></footer>
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-0300</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -1337,6 +1364,13 @@ else raiz.Validacao = exportar;
   const TEMPO_LIMITE_MS = 45000;
   const pausados = new Map();
 
+  // ---------- Modo fácil: quem não tem chave usa a do dono do site, por um intermediário na Cloudflare ----------
+  const URL_MODO_FACIL = 'https://adaptador-curriculo.henmournwolf.workers.dev';
+  const MODELOS_MODO_FACIL = ['gemini-flash-lite-latest', 'gemini-flash-latest']; // Lite primeiro: cota maior
+  const LIMITE_FACIL_DIA = 20; // pedidos por aparelho por dia (uma adaptação usa 2)
+  const usoFacil = () => { const u = ler('usoFacil', {}); return u.dia === hojeLocal() ? u.n : 0; };
+  const contarUsoFacil = () => salvar('usoFacil', { dia: hojeLocal(), n: usoFacil() + 1 });
+
   async function modelosDisponiveis(chave) {
     try {
       const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': chave } });
@@ -1350,12 +1384,16 @@ else raiz.Validacao = exportar;
     } catch { return []; }
   }
 
+  // chave = null usa o modo fácil (intermediário com a chave do dono do site)
   async function chamarGemini(chave, modelo, partes, esquema) {
+    const url = chave
+      ? `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`
+      : `${URL_MODO_FACIL}/gerar?modelo=${encodeURIComponent(modelo)}`;
     let r;
     try {
-      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`, {
+      r = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
+        headers: chave ? { 'Content-Type': 'application/json', 'x-goog-api-key': chave } : { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ role: 'user', parts: partes }], generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: esquema } }),
         signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
       });
@@ -1373,7 +1411,8 @@ else raiz.Validacao = exportar;
 
   async function gerar(partes, esquema) {
     const cfg = ler('config', {});
-    if (!cfg.apiKey) throw new Error('Configure sua chave gratuita do Google Gemini primeiro (passo 1).');
+    if (!cfg.apiKey && !URL_MODO_FACIL) throw new Error('Configure sua chave gratuita do Google Gemini primeiro (passo 1).');
+    if (!cfg.apiKey) return gerarModoFacil(partes, esquema);
     let fila = [cfg.modelo || MODELOS_PADRAO[0], ...MODELOS_PADRAO];
     const agora = Date.now();
     fila.sort((a, b) => ((pausados.get(a) || 0) > agora) - ((pausados.get(b) || 0) > agora));
@@ -1394,6 +1433,28 @@ else raiz.Validacao = exportar;
       }
     }
     if (ultimoErro?.status === 429) throw new Error('Limite gratuito da IA atingido por agora. Espere um minuto e tente de novo.');
+    throw ultimoErro;
+  }
+
+  async function gerarModoFacil(partes, esquema) {
+    if (usoFacil() >= LIMITE_FACIL_DIA) {
+      throw new Error('Você usou todo o modo grátis de hoje. Volte amanhã ou toque em "Usa muito? Use sua própria chave", no fim do painel, para usar sem limite.');
+    }
+    let ultimoErro;
+    for (const modelo of MODELOS_MODO_FACIL) {
+      try {
+        const resultado = await chamarGemini(null, modelo, partes, esquema);
+        contarUsoFacil();
+        return { resultado, modelo };
+      } catch (e) {
+        ultimoErro = e;
+        if (/modo grátis|Origem/.test(e.message)) throw e; // limites do próprio intermediário
+        if (![404, 429, 500, 503, 504].includes(e.status)) break;
+      }
+    }
+    if (ultimoErro?.status === 429) {
+      throw new Error('O modo grátis está lotado agora (muita gente usando). Tente daqui a pouco ou use sua própria chave (link "Usa muito?" no fim do painel).');
+    }
     throw ultimoErro;
   }
 
@@ -1426,7 +1487,11 @@ else raiz.Validacao = exportar;
 
     if (url === '/api/estado') {
       const cfg = ler('config', {});
-      return { temChave: !!cfg.apiKey, modelo: cfg.modelo || MODELOS_PADRAO[0], curriculo: ler('curriculo', ''), online: true };
+      return {
+        temChave: !!cfg.apiKey, modelo: cfg.modelo || MODELOS_PADRAO[0], curriculo: ler('curriculo', ''), online: true,
+        modoFacil: !cfg.apiKey && !!URL_MODO_FACIL,
+        usoFacil: { usados: usoFacil(), limite: LIMITE_FACIL_DIA },
+      };
     }
     if (url === '/api/config') {
       const cfg = ler('config', {});
@@ -1725,11 +1790,22 @@ const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 async function iniciar() {
   const e = await api('/api/estado');
   if (e.online) document.body.classList.add('modo-online');
-  mostrarChave(e.temChave);
+  modoFacil = !!e.modoFacil;
+  mostrarChave(e.temChave || modoFacil);
+  if (modoFacil) {
+    // Não precisa configurar nada: some o passo da chave e os passos são renumerados.
+    $('cartaoChave').hidden = true;
+    document.querySelectorAll('[data-num-facil]').forEach(n => { n.textContent = n.dataset.numFacil; });
+    $('linkChavePropria').hidden = false;
+    $('chaveOkTexto').textContent = 'Modo grátis ativo.';
+    $('trocarChave').textContent = 'usar minha própria chave (sem limite)';
+    $('privacidadeFacil').hidden = false;
+  }
   $('textoCv').value = e.curriculo || '';
   carregarHistorico();
 }
 
+let modoFacil = false;
 function mostrarChave(tem) {
   $('chaveOk').hidden = !tem;
   $('chaveForm').hidden = tem;
@@ -1750,6 +1826,9 @@ async function ativarChave() {
     await api('/api/config', { method: 'POST', body: { apiKey: chave } });
     $('apiKey').value = '';
     status.textContent = '';
+    $('chaveOkTexto').textContent = modoFacil ? '✔ IA ativada com a sua chave, sem limite.' : '✔ IA ativada.';
+    $('trocarChave').textContent = 'trocar chave';
+    $('privacidadeFacil').hidden = true;
     mostrarChave(true);
   } catch (e) {
     status.className = 'chave-status erro';
@@ -1774,6 +1853,13 @@ $('colarChave').onclick = async () => {
   }
 };
 $('trocarChave').onclick = () => mostrarChave(false);
+// Modo fácil: a chave própria fica guardada num link discreto, para quem estourar o limite diário
+$('mostrarChavePropria').onclick = () => {
+  $('cartaoChave').hidden = false;
+  mostrarChave(false);
+  $('linkChavePropria').hidden = true;
+  rolarPara($('cartaoChave'));
+};
 
 // ---------- Currículo ----------
 $('arquivoCv').onchange = async ev => {
