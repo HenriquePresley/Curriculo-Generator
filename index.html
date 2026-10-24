@@ -1046,7 +1046,7 @@ details summary { cursor: pointer; color: var(--destaque); font-size: 14px; font
     </div>
   </dialog>
 
-  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.19-1425</span></footer>
+  <footer class="rodape">Feito por <a href="https://www.linkedin.com/in/henrique-p-171b33256/" target="_blank" rel="noopener">Henrique Presley</a>, que também tá procurando emprego. Me contrata? · versão <span id="versaoApp">2026.10.21-2357</span></footer>
 
   <div id="montador" class="montador" hidden>
     <div class="montador-caixa" role="dialog" aria-label="Montar currículo do zero">
@@ -1516,9 +1516,14 @@ function compatibilidade(curriculoOriginal, resultado) {
 
 // Palavras-chave que o currículo original comprova: o termo inteiro aparece nele, nessa ordem
 // (palavras soltas em lugares diferentes não contam, ex.: "montagem" + "móveis" ≠ "montagem de móveis").
-function comprovadas(curriculoOriginal, chaves) {
+// suspeitos (opcional): termos que a verificação marcou na adaptação anterior. Se vier a lista, uma
+// palavra-chave sinônima (ex.: vaga "atendimento ao público", currículo "atendimento ao cliente") também é
+// mantida, desde que nada nela tenha sido marcado como possível invenção.
+function comprovadas(curriculoOriginal, chaves, suspeitos) {
   const cv = ' ' + norm(curriculoOriginal) + ' ';
-  return (Array.isArray(chaves) ? chaves : []).map(String).filter(k => norm(k) && cv.includes(' ' + norm(k) + ' '));
+  const marcados = Array.isArray(suspeitos) ? new Set(suspeitos.map(s => norm(s))) : null;
+  return (Array.isArray(chaves) ? chaves : []).map(String).filter(k => norm(k) && (cv.includes(' ' + norm(k) + ' ')
+    || (marcados && !palavras(k).some(p => marcados.has(p)))));
 }
 
 const exportar = { validar, compatibilidade, comprovadas, norm };
@@ -1752,7 +1757,7 @@ else raiz.IA = exportar;
       const { imagens = [], textoVaga = '' } = corpo;
       if (!cv.trim()) throw new Error('Cadastre seu currículo primeiro.');
       if (!imagens.length && !textoVaga.trim()) throw new Error('Envie a foto/print da vaga ou cole o texto dela.');
-      const { resultado, modelo } = await gerar(partesComImagens(montarPrompt(cv, textoVaga, corpo.palavrasChave, comprovadas(cv, corpo.manterChaves)), imagens), ESQUEMA);
+      const { resultado, modelo } = await gerar(partesComImagens(montarPrompt(cv, textoVaga, corpo.palavrasChave, comprovadas(cv, corpo.manterChaves, corpo.suspeitos)), imagens), ESQUEMA);
       // Readaptação: mantém as palavras-chave da primeira vez, senão a % muda de base e parece cair
       const fixas = corpo.palavrasChave;
       if (Array.isArray(fixas) && fixas.length) resultado.vaga = { ...resultado.vaga, palavras_chave: fixas.map(String).slice(0, 40) };
@@ -2305,7 +2310,7 @@ async function adaptarVagas(lista, variasNoAnuncio = false) {
       ocupado(true, lista.length > 1
         ? `Adaptando para “${v.cargo}” (${i + 1} de ${lista.length})…`
         : 'Adaptando seu currículo para a vaga…');
-      gerados.push(await api('/api/adaptar', { method: 'POST', body: { imagens: [], textoVaga: textoDaVaga(v, variasNoAnuncio), palavrasChave: v.palavrasChave, manterChaves: v.manterChaves } }));
+      gerados.push(await api('/api/adaptar', { method: 'POST', body: { imagens: [], textoVaga: textoDaVaga(v, variasNoAnuncio), palavrasChave: v.palavrasChave, manterChaves: v.manterChaves, suspeitos: v.suspeitos } }));
     }
   } catch (e) {
     alert(e.message + (gerados.length ? `\n\n${gerados.length} currículo(s) foram gerados antes do erro.` : ''));
@@ -2441,6 +2446,7 @@ function desenharAnalise(reg) {
     texto_completo: atual.resultado.vaga?.texto_transcrito || '',
     palavrasChave: atual.resultado.vaga?.palavras_chave,
     manterChaves: atual.compatibilidade?.encontradas,
+    suspeitos: atual.verificacao?.termosSuspeitos || [],
   }], true);
   adicionadas = 0;
 }
